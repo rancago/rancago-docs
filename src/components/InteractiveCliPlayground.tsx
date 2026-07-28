@@ -22,6 +22,15 @@ type CliPreset = {
   logs: (ctx: { version: string; buildDate?: string | null; lang: Language }) => string[];
 };
 
+const RANCAGO_BANNER_LINES = [
+  "  ____                                        ",
+  " |  _ \\ __ _ _ __   ___ __ _  __ _  ___      ",
+  " | |_) / _` | '_ \\ / __/ _` |/ _` |/ _ \\     ",
+  " |  _ < (_| | | | | (_| (_| | (_| | (_) |    ",
+  " |_| \\_\\__,_|_| |_|\\___\\__,_|\\__, |\\___/     ",
+  "                               |___/          ",
+] as const;
+
 export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> = ({
   lang,
 }) => {
@@ -34,14 +43,7 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
   const cliVersion = '1.0.0';
 
   const bannerLines = useMemo(
-    () => [
-      '  ____                                        ',
-      ' |  _ \\\\ __ _ _ __   ___ __ _  __ _  ___      ',
-      ' | |_) / _` | \\'_ \\\\ / __/ _` |/ _` |/ _ \\\\     ',
-      ' |  _ < (_| | | | | (_| (_| | (_| | (_) |    ',
-      ' |_| \\\\_\\\\__,_|_| |_|\\\\___\\\\__,_|\\\\__, |\\\\___/     ',
-      '                               |___/          ',
-    ],
+    () => [...RANCAGO_BANNER_LINES],
     [],
   );
 
