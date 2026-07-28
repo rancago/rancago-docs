@@ -1,0 +1,93 @@
+{
+  "repos": [
+    {
+      "name": "Rancago Core Framework",
+      "repoName": "rancago",
+      "githubUrl": "https://github.com/rancago/rancago",
+      "description": {
+        "id": "Kernel Go Framework tangguh berarsitektur Clean Architecture dengan adapter HTTP agnostic (Fiber/Gin/Chi), Dependency Injection native, dan Resiliency Circuit Breaker built-in.",
+        "en": "Resilient Go core framework engineered around Clean Architecture principles with framework-agnostic HTTP adapters (Fiber/Gin/Chi), native DI, and built-in Circuit Breaker resilience."
+      },
+      "stars": 1,
+      "forks": 0,
+      "openIssues": 0,
+      "language": "Go",
+      "license": "MIT",
+      "version": "v1.8.2",
+      "iconName": "Cpu",
+      "installCmd": "go get github.com/rancago/rancago@latest"
+    },
+    {
+      "name": "Rancago CLI Tool",
+      "repoName": "rancago-cli",
+      "githubUrl": "https://github.com/rancago/rancago-cli",
+      "description": {
+        "id": "Perangkat CLI untuk scaffolding proyek Clean Architecture otomatis, pembuat modul Domain/Usecase/Repository, serta live hot-reloading dev server.",
+        "en": "Powerful CLI tool for automatic Clean Architecture project scaffolding, Domain/Usecase/Repository module generation, and live hot-reloading dev server."
+      },
+      "stars": 1,
+      "forks": 0,
+      "openIssues": 0,
+      "language": "Go",
+      "license": "MIT",
+      "version": "v2.1.0",
+      "iconName": "Terminal",
+      "installCmd": "go install github.com/rancago/rancago-cli@latest"
+    },
+    {
+      "name": "Rancago Installer",
+      "repoName": "rancago-install",
+      "githubUrl": "https://github.com/rancago/rancago-install",
+      "description": {
+        "id": "Skrip instalasi otomatis lintas platform (Linux, macOS, Windows) untuk mengunduh biner Rancago CLI dan dependensi lingkungan dalam satu perintah.",
+        "en": "Cross-platform zero-dependency automated installer script (Linux, macOS, Windows) to provision Rancago binaries and toolchain in one single command."
+      },
+      "stars": 1,
+      "forks": 0,
+      "openIssues": 0,
+      "language": "Go",
+      "license": "MIT",
+      "version": "v1.4.0",
+      "iconName": "Download",
+      "installCmd": "curl -sSL https://raw.githubusercontent.com/rancago/rancago-install/main/install.sh | bash"
+    },
+    {
+      "name": "Rancago Community Q&A",
+      "repoName": "forums",
+      "githubUrl": "https://github.com/rancago/forums",
+      "description": {
+        "id": "Repositori resmi forum Q&A, diskusi teknis, tanya arsitektur, usulan fitur, dan pengumuman ekosistem Rancago.",
+        "en": "Official repository dedicated to technical Q&A, architectural discussions, feature requests, and Rancago ecosystem announcements."
+      },
+      "stars": 0,
+      "forks": 0,
+      "openIssues": 0,
+      "language": "GitHub Discussions",
+      "license": "Community",
+      "version": "Q&A Hub",
+      "iconName": "MessageSquare",
+      "installCmd": "https://github.com/rancago/forums/discussions"
+    }
+  ],
+  "contributors": [
+    {
+      "name": "Muhammad Ikhwan Fathulloh",
+      "username": "Muhammad-Ikhwan-Fathulloh",
+      "avatarUrl": "https://avatars.githubusercontent.com/u/77288014?v=4",
+      "role": {
+        "id": "Lead Architect & Creator (16 Commits)",
+        "en": "Lead Architect & Creator (16 Commits)"
+      },
+      "contributions": 16,
+      "repos": ["rancago", "rancago-cli", "rancago-install", "forums"],
+      "githubUrl": "https://github.com/Muhammad-Ikhwan-Fathulloh"
+    }
+  ],
+  "fallbackAggregateStats": {
+    "totalStars": 3,
+    "totalForks": 0,
+    "totalRepos": 4,
+    "totalContributors": 1,
+    "isFallback": false
+  }
+}

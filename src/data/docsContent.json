@@ -1,0 +1,1169 @@
+[
+  {
+    "id": "getting-started",
+    "title": {
+      "id": "🚀 Memulai (Getting Started)",
+      "en": "🚀 Getting Started"
+    },
+    "icon": "Rocket",
+    "items": [
+      {
+        "id": "intro",
+        "category": "getting-started",
+        "badge": "Core",
+        "title": {
+          "id": "Pengenalan & Filosofi Rancago",
+          "en": "Introduction & Philosophy"
+        },
+        "summary": {
+          "id": "Memahami arsitektur Hexagonal (Ports & Adapters), IoC Container, dan prinsip SOLID dalam Rancago Framework.",
+          "en": "Understand Hexagonal Architecture (Ports & Adapters), IoC Container, and SOLID principles in Rancago Framework."
+        },
+        "content": {
+          "id": {
+            "heading": "Filosofi Rancago Framework",
+            "subtitle": "Hexagonal Architecture · IoC Container · SOLID Native Go Framework",
+            "sections": [
+              {
+                "title": "Apa itu Rancago Framework?",
+                "description": "Rancago adalah framework Go modern yang dibangun di atas pola Hexagonal Architecture (Ports & Adapters). Setiap komponen sistem diisolasi dalam lapisan domain, ports, application, adapters, dan bootstrap — memungkinkan penggantian infrastruktur (database, cache, storage, transport) tanpa menyentuh logika bisnis.",
+                "callout": {
+                  "type": "sunda",
+                  "title": "ᮛᮔ᮪ᮎᮌ᮰ — Filosofi Sunda Nusantara",
+                  "message": "Kata \"Rancago\" terinspirasi dari kearifan lokal Sunda: \"Rancagé\" yang bermakna cekatan, terampil, inovatif, dan penuh daya cipta. Nilai ini diwujudkan dalam kode yang bersih, terstruktur, dan saling menopang melalui prinsip \"Silih Asah, Silih Asih, Silih Asuh\"."
+                }
+              },
+              {
+                "title": "Pilar Utama Rancago",
+                "description": "Framework ini dibangun di atas fondasi teknis yang kuat untuk kebutuhan produksi enterprise:",
+                "bullets": [
+                  "🏛️ Hexagonal Architecture: Pemisahan ketat domain → ports → application → adapters → bootstrap tanpa kebocoran dependensi.",
+                  "🔧 IoC Service Container: Binding Singleton/Transient/Instance dengan Alias resolution dan thread-safe MustResolve.",
+                  "🛡️ ServiceProvider Pattern: Register + Boot lifecycle untuk bootstrapping modular tanpa urutan yang rumit.",
+                  "📦 Multi-Storage Manager: MinIO/S3/Google Drive dengan factory OCP — tambah driver tanpa ubah Manager.",
+                  "🔐 OAuth Socialite + Redis RBAC: Google/GitHub/Facebook dengan role & permission berlapis.",
+                  "📡 Notification 3-in-1: REST + gRPC + WebSocket dari satu use case yang sama.",
+                  "🔍 pgvector Semantic Search: Generic Repository[T] dengan HNSW cosine index 1536-dimensi."
+                ]
+              },
+              {
+                "title": "Entrypoint Utama",
+                "description": "Server Rancago menjalankan HTTP dan gRPC secara bersamaan dari root main.go:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "main.go",
+                  "code": "package main\n\nimport (\n\t\"context\"\n\t\"log\"\n\t\"os/signal\"\n\t\"syscall\"\n\n\t\"github.com/rancago/framework/bootstrap\"\n)\n\nfunc main() {\n\tapp := bootstrap.New()\n\tapp.RegisterCore()\n\tapp.Boot()\n\n\tctx, stop := signal.NotifyContext(context.Background(),\n\t\tsyscall.SIGINT, syscall.SIGTERM)\n\tdefer stop()\n\n\terrCh := make(chan error, 2)\n\tgo func() { errCh <- app.StartHTTP(ctx) }()\n\tgo func() { errCh <- app.StartGRPC(ctx) }()\n\n\tif err := <-errCh; err != nil {\n\t\tlog.Fatalf(\"[rancago] fatal: %v\", err)\n\t}\n}"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "Rancago Framework Philosophy",
+            "subtitle": "Hexagonal Architecture · IoC Container · SOLID Native Go Framework",
+            "sections": [
+              {
+                "title": "What is Rancago Framework?",
+                "description": "Rancago is a modern Go framework built on the Hexagonal Architecture (Ports & Adapters) pattern. Every component is strictly isolated into domain, ports, application, adapters, and bootstrap layers — making it trivial to swap infrastructure (database, cache, storage, transport) without touching business logic.",
+                "callout": {
+                  "type": "sunda",
+                  "title": "ᮛᮔ᮪ᮎᮌ᮰ — Sundanese Cultural Wisdom",
+                  "message": "\"Rancago\" derives from the Sundanese word \"Rancagé\" — representing dexterity, innovation, and inventive craftsmanship. This ethos is expressed in clean, composable code guided by \"Silih Asah, Silih Asih, Silih Asuh\": sharpen each other, care for each other, nurture each other."
+                }
+              },
+              {
+                "title": "Core Pillars of Rancago",
+                "description": "The framework is built on a strong technical foundation for enterprise production use:",
+                "bullets": [
+                  "🏛️ Hexagonal Architecture: Strict separation of domain → ports → application → adapters → bootstrap with no dependency leakage.",
+                  "🔧 IoC Service Container: Singleton/Transient/Instance bindings with Alias resolution and thread-safe MustResolve.",
+                  "🛡️ ServiceProvider Pattern: Register + Boot lifecycle for modular bootstrapping without complex ordering.",
+                  "📦 Multi-Storage Manager: MinIO/S3/Google Drive with OCP factory — add a new driver without touching Manager.",
+                  "🔐 OAuth Socialite + Redis RBAC: Google/GitHub/Facebook with layered role & permission checks.",
+                  "📡 3-in-1 Notifications: REST + gRPC + WebSocket delivered from a single use case.",
+                  "🔍 pgvector Semantic Search: Generic Repository[T] with 1536-dimension HNSW cosine index."
+                ]
+              },
+              {
+                "title": "Main Entry Point",
+                "description": "Rancago runs HTTP and gRPC servers concurrently from the root main.go:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "main.go",
+                  "code": "package main\n\nimport (\n\t\"context\"\n\t\"log\"\n\t\"os/signal\"\n\t\"syscall\"\n\n\t\"github.com/rancago/framework/bootstrap\"\n)\n\nfunc main() {\n\tapp := bootstrap.New()\n\tapp.RegisterCore()\n\tapp.Boot()\n\n\tctx, stop := signal.NotifyContext(context.Background(),\n\t\tsyscall.SIGINT, syscall.SIGTERM)\n\tdefer stop()\n\n\terrCh := make(chan error, 2)\n\tgo func() { errCh <- app.StartHTTP(ctx) }()\n\tgo func() { errCh <- app.StartGRPC(ctx) }()\n\n\tif err := <-errCh; err != nil {\n\t\tlog.Fatalf(\"[rancago] fatal: %v\", err)\n\t}\n}"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "architecture",
+        "category": "getting-started",
+        "badge": "Architecture",
+        "title": {
+          "id": "Arsitektur Hexagonal (Ports & Adapters)",
+          "en": "Hexagonal Architecture (Ports & Adapters)"
+        },
+        "summary": {
+          "id": "Pola Ports & Adapters dengan 6 lapisan: domain, ports, application, adapters, bootstrap, cmd.",
+          "en": "Ports & Adapters pattern with 6 layers: domain, ports, application, adapters, bootstrap, cmd."
+        },
+        "content": {
+          "id": {
+            "heading": "Arsitektur Hexagonal Rancago",
+            "subtitle": "Domain → Ports → Application → Adapters → Bootstrap → Cmd",
+            "sections": [
+              {
+                "title": "6 Lapisan Hexagonal",
+                "description": "Setiap lapisan memiliki tanggung jawab yang jelas dan dependensi yang hanya mengalir ke dalam (inward):",
+                "bullets": [
+                  "1. domain/: Entity murni Go + Value Objects + Domain Errors. Nol dependensi eksternal.",
+                  "2. ports/driven/: Interface outbound (Repository, CachePort, StorageDriver, WebSocketPort, SocialitePort).",
+                  "3. ports/driving/: Interface inbound (NotificationUseCase, UserUseCase, DocumentUseCase).",
+                  "4. application/usecases/: Interactor — logika bisnis, mengimplementasi driving port, inject driven port.",
+                  "5. adapters/driven/: Implementasi konkret: in-memory, Redis, Storage, WebSocket, Auth.",
+                  "6. adapters/driving/: HTTP handler, gRPC adapter, CLI adapter — entry point dari luar.",
+                  "7. bootstrap/app.go: Kernel — wiring seluruh IoC container dan provider.",
+                  "8. cmd/rancago-server/: Entry point server (HTTP + gRPC)."
+                ]
+              },
+              {
+                "title": "Diagram Alir Dependensi",
+                "description": "Dependensi selalu mengalir ke DALAM menuju domain murni. Adapters tidak pernah di-import oleh domain:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Hexagonal-Architecture.mmd",
+                  "code": "graph TD\n  subgraph CMD [\"cmd/rancago-server\"]\n    Main[\"main.go\\nHTTP + gRPC\"]\n  end\n\n  subgraph Bootstrap [\"bootstrap/app.go\"]\n    BSP[\"RegisterProviders()\\nRegisterCore()\\nBoot()\"]\n  end\n\n  subgraph Driving [\"adapters/driving\"]\n    HTTP[\"HTTP Handlers\"]\n    GRPC[\"gRPC Adapters\"]\n    CLI[\"CLI Adapter\"]\n  end\n\n  subgraph Ports [\"ports\"]\n    DrivingPort[\"driving/ (UseCase interfaces)\"]\n    DrivenPort[\"driven/ (Repository / Cache / Storage interfaces)\"]\n  end\n\n  subgraph Application [\"application/usecases\"]\n    UC[\"Interactors\\n(business logic)\"]\n  end\n\n  subgraph Domain [\"domain\"]\n    Entities[\"entities/ (pure Go structs)\"]\n    VO[\"valueobjects/\"]\n    Errors[\"errors/ (domain sentinels)\"]\n  end\n\n  subgraph Driven [\"adapters/driven\"]\n    InMem[\"persistence/inmemory\"]\n    Redis[\"cache/redis_adapter\"]\n    Storage[\"storage/\"]\n    WS[\"websocket/hub_adapter\"]\n    Auth[\"auth/socialite\"]\n  end\n\n  Main --> BSP\n  BSP --> Driving\n  BSP --> UC\n  HTTP --> DrivingPort\n  GRPC --> DrivingPort\n  CLI --> DrivingPort\n  DrivingPort --> UC\n  UC --> DrivenPort\n  UC --> Domain\n  DrivenPort -. implemented by .-> InMem\n  DrivenPort -. implemented by .-> Redis\n  DrivenPort -. implemented by .-> Storage\n  DrivenPort -. implemented by .-> WS\n  DrivenPort -. implemented by .-> Auth"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "Rancago Hexagonal Architecture",
+            "subtitle": "Domain → Ports → Application → Adapters → Bootstrap → Cmd",
+            "sections": [
+              {
+                "title": "6 Hexagonal Layers",
+                "description": "Each layer has a clear responsibility and dependencies only flow inward:",
+                "bullets": [
+                  "1. domain/: Pure Go entities + Value Objects + Domain Errors. Zero external dependencies.",
+                  "2. ports/driven/: Outbound interfaces (Repository, CachePort, StorageDriver, WebSocketPort, SocialitePort).",
+                  "3. ports/driving/: Inbound interfaces (NotificationUseCase, UserUseCase, DocumentUseCase).",
+                  "4. application/usecases/: Interactors — business logic, implements driving ports, injects driven ports.",
+                  "5. adapters/driven/: Concrete implementations: in-memory, Redis, Storage, WebSocket, Auth.",
+                  "6. adapters/driving/: HTTP handlers, gRPC adapters, CLI adapter — external entry points.",
+                  "7. bootstrap/app.go: Kernel — wires the entire IoC container and providers.",
+                  "8. cmd/rancago-server/: Server entry point (HTTP + gRPC)."
+                ]
+              },
+              {
+                "title": "Dependency Flow Diagram",
+                "description": "Dependencies always flow INWARD toward the pure domain. Adapters are never imported by domain:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Hexagonal-Architecture.mmd",
+                  "code": "graph TD\n  subgraph CMD [\"cmd/rancago-server\"]\n    Main[\"main.go\\nHTTP + gRPC\"]\n  end\n\n  subgraph Bootstrap [\"bootstrap/app.go\"]\n    BSP[\"RegisterProviders()\\nRegisterCore()\\nBoot()\"]\n  end\n\n  subgraph Driving [\"adapters/driving\"]\n    HTTP[\"HTTP Handlers\"]\n    GRPC[\"gRPC Adapters\"]\n    CLI[\"CLI Adapter\"]\n  end\n\n  subgraph Ports [\"ports\"]\n    DrivingPort[\"driving/ (UseCase interfaces)\"]\n    DrivenPort[\"driven/ (Repository / Cache / Storage interfaces)\"]\n  end\n\n  subgraph Application [\"application/usecases\"]\n    UC[\"Interactors\\n(business logic)\"]\n  end\n\n  subgraph Domain [\"domain\"]\n    Entities[\"entities/ (pure Go structs)\"]\n    VO[\"valueobjects/\"]\n    Errors[\"errors/ (domain sentinels)\"]\n  end\n\n  subgraph Driven [\"adapters/driven\"]\n    InMem[\"persistence/inmemory\"]\n    Redis[\"cache/redis_adapter\"]\n    Storage[\"storage/\"]\n    WS[\"websocket/hub_adapter\"]\n    Auth[\"auth/socialite\"]\n  end\n\n  Main --> BSP\n  BSP --> Driving\n  BSP --> UC\n  HTTP --> DrivingPort\n  GRPC --> DrivingPort\n  CLI --> DrivingPort\n  DrivingPort --> UC\n  UC --> DrivenPort\n  UC --> Domain\n  DrivenPort -. implemented by .-> InMem\n  DrivenPort -. implemented by .-> Redis\n  DrivenPort -. implemented by .-> Storage\n  DrivenPort -. implemented by .-> WS\n  DrivenPort -. implemented by .-> Auth"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "directory-structure",
+        "category": "getting-started",
+        "title": {
+          "id": "Struktur Direktori Aktual",
+          "en": "Actual Directory Structure"
+        },
+        "summary": {
+          "id": "Peta lengkap folder proyek Rancago mengikuti pola Hexagonal Architecture.",
+          "en": "Complete project folder map following the Hexagonal Architecture pattern."
+        },
+        "content": {
+          "id": {
+            "heading": "Struktur Direktori Rancago (Aktual)",
+            "subtitle": "Setiap folder memiliki peran spesifik dalam arsitektur hexagonal",
+            "sections": [
+              {
+                "title": "Peta Direktori Lengkap",
+                "description": "Struktur ini dihasilkan dan dikembangkan mengikuti pola Ports & Adapters:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Directory Tree",
+                  "code": "rancago/\n├── app/\n│   ├── Contracts/         # Semua interface: auth, database, google, notification, provider, storage\n│   ├── Providers/         # AuthServiceProvider, GoogleServiceProvider, StorageServiceProvider\n│   ├── Services/          # NotificationService (framework layer)\n│   ├── Models/            # GORM models: User, Role, Permission, Document (pgvector 1536d HNSW)\n│   └── Repositories/      # Generic Repository[T] base\n│\n├── bootstrap/app.go       # Root application bootstrap (framework layer)\n├── cmd/rancago-server/    # Server entry point (HTTP + gRPC)\n├── config/config.go       # Typed config struct\n│\n├── framework/\n│   ├── Auth/              # rbac.go, socialite.go, Providers/generic.go\n│   ├── Cache/redis.go     # RedisManager\n│   ├── Container/         # IoC container.go\n│   ├── Google/            # calendar.go, meet.go\n│   ├── Storage/           # manager.go (OCP via RegisterFactory)\n│   ├── Transport/         # NotificationTransport.go (REST/gRPC/WebSocket)\n│   └── WebSocket/hub.go   # Scalable Hub via Redis PubSub\n│\n├── internal/              # Hexagonal core (new features go here)\n│   ├── domain/\n│   │   ├── entities/      # User, Role, Permission, Document, Notification\n│   │   ├── valueobjects/  # ID, Email, Pagination\n│   │   └── errors/        # Domain sentinels + DomainError type\n│   ├── ports/\n│   │   ├── driven/        # Outbound interfaces (Repository, Cache, Storage, WS, Auth)\n│   │   └── driving/       # Inbound interfaces (UseCase contracts)\n│   ├── application/usecases/  # Interactors: user, notification, document\n│   ├── adapters/\n│   │   ├── driven/        # Concrete: inmemory, cache/redis, auth/socialite, storage, websocket\n│   │   └── driving/       # HTTP handlers, gRPC adapter, CLI\n│   ├── bootstrap/app.go   # Internal hexagonal bootstrap\n│   └── kernel/            # config.go + container.go (kernel layer)\n│\n├── docs/features/         # Per-feature context docs (auto-generated by make:feature)\n├── database/migrations/   # Migration files\n├── go.mod                 # module: github.com/rancago/framework\n└── main.go                # Root entry point"
+                }
+              },
+              {
+                "title": "Diagram Pohon Direktori",
+                "description": "Visualisasi relasi antar folder dalam arsitektur hexagonal:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Directory-Tree.mmd",
+                  "code": "graph TD\n  Root[\"rancago/\"]\n  Root --> App[\"app/ (framework providers & models)\"]\n  Root --> Bootstrap[\"bootstrap/app.go (root kernel)\"]\n  Root --> Cmd[\"cmd/rancago-server/main.go\"]\n  Root --> Framework[\"framework/ (IoC, Cache, Storage, Auth, WS, Google)\"]\n  Root --> Internal[\"internal/ (hexagonal core)\"]\n  Root --> Docs[\"docs/features/ (AI context docs)\"]\n\n  Internal --> Domain[\"domain/ (entities + valueobjects + errors)\"]\n  Internal --> Ports[\"ports/ (driven + driving interfaces)\"]\n  Internal --> Usecases[\"application/usecases/ (interactors)\"]\n  Internal --> Adapters[\"adapters/ (driven + driving implementations)\"]\n  Internal --> Kernel[\"kernel/ (config + container)\"]\n\n  Framework --> Container[\"Container/container.go\"]\n  Framework --> Auth[\"Auth/ (RBAC + Socialite)\"]\n  Framework --> Storage[\"Storage/ (manager + drivers)\"]\n  Framework --> WebSocket[\"WebSocket/hub.go\"]\n  Framework --> Google[\"Google/ (calendar + meet)\"]"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "Rancago Actual Directory Structure",
+            "subtitle": "Every folder has a specific role in the hexagonal architecture",
+            "sections": [
+              {
+                "title": "Full Directory Map",
+                "description": "This structure follows and enforces the Ports & Adapters pattern:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Directory Tree",
+                  "code": "rancago/\n├── app/\n│   ├── Contracts/         # All interfaces: auth, database, google, notification, provider, storage\n│   ├── Providers/         # AuthServiceProvider, GoogleServiceProvider, StorageServiceProvider\n│   ├── Services/          # NotificationService (framework layer)\n│   ├── Models/            # GORM models: User, Role, Permission, Document (pgvector 1536d HNSW)\n│   └── Repositories/      # Generic Repository[T] base\n│\n├── bootstrap/app.go       # Root application bootstrap (framework layer)\n├── cmd/rancago-server/    # Server entry point (HTTP + gRPC)\n├── config/config.go       # Typed config struct\n│\n├── framework/\n│   ├── Auth/              # rbac.go, socialite.go, Providers/generic.go\n│   ├── Cache/redis.go     # RedisManager\n│   ├── Container/         # IoC container.go\n│   ├── Google/            # calendar.go, meet.go\n│   ├── Storage/           # manager.go (OCP via RegisterFactory)\n│   ├── Transport/         # NotificationTransport.go (REST/gRPC/WebSocket)\n│   └── WebSocket/hub.go   # Scalable Hub via Redis PubSub\n│\n├── internal/              # Hexagonal core (new features go here)\n│   ├── domain/\n│   │   ├── entities/      # User, Role, Permission, Document, Notification\n│   │   ├── valueobjects/  # ID, Email, Pagination\n│   │   └── errors/        # Domain sentinels + DomainError type\n│   ├── ports/\n│   │   ├── driven/        # Outbound interfaces (Repository, Cache, Storage, WS, Auth)\n│   │   └── driving/       # Inbound interfaces (UseCase contracts)\n│   ├── application/usecases/  # Interactors: user, notification, document\n│   ├── adapters/\n│   │   ├── driven/        # Concrete: inmemory, cache/redis, auth/socialite, storage, websocket\n│   │   └── driving/       # HTTP handlers, gRPC adapter, CLI\n│   ├── bootstrap/app.go   # Internal hexagonal bootstrap\n│   └── kernel/            # config.go + container.go (kernel layer)\n│\n├── docs/features/         # Per-feature context docs (auto-generated by make:feature)\n├── database/migrations/   # Migration files\n├── go.mod                 # module: github.com/rancago/framework\n└── main.go                # Root entry point"
+                }
+              },
+              {
+                "title": "Directory Tree Diagram",
+                "description": "Visualising the relationships between folders in the hexagonal architecture:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Directory-Tree.mmd",
+                  "code": "graph TD\n  Root[\"rancago/\"]\n  Root --> App[\"app/ (framework providers & models)\"]\n  Root --> Bootstrap[\"bootstrap/app.go (root kernel)\"]\n  Root --> Cmd[\"cmd/rancago-server/main.go\"]\n  Root --> Framework[\"framework/ (IoC, Cache, Storage, Auth, WS, Google)\"]\n  Root --> Internal[\"internal/ (hexagonal core)\"]\n  Root --> Docs[\"docs/features/ (AI context docs)\"]\n\n  Internal --> Domain[\"domain/ (entities + valueobjects + errors)\"]\n  Internal --> Ports[\"ports/ (driven + driving interfaces)\"]\n  Internal --> Usecases[\"application/usecases/ (interactors)\"]\n  Internal --> Adapters[\"adapters/ (driven + driving implementations)\"]\n  Internal --> Kernel[\"kernel/ (config + container)\"]\n\n  Framework --> Container[\"Container/container.go\"]\n  Framework --> Auth[\"Auth/ (RBAC + Socialite)\"]\n  Framework --> Storage[\"Storage/ (manager + drivers)\"]\n  Framework --> WebSocket[\"WebSocket/hub.go\"]\n  Framework --> Google[\"Google/ (calendar + meet)\"]"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "core-framework",
+    "title": {
+      "id": "📦 Core Framework",
+      "en": "📦 Core Framework"
+    },
+    "icon": "Package",
+    "items": [
+      {
+        "id": "ioc-container",
+        "category": "core-framework",
+        "badge": "IoC",
+        "title": {
+          "id": "IoC Service Container",
+          "en": "IoC Service Container"
+        },
+        "summary": {
+          "id": "Container thread-safe dengan Singleton, Transient, Instance, Alias, Resolve, dan MustResolve.",
+          "en": "Thread-safe container with Singleton, Transient, Instance, Alias, Resolve, and MustResolve."
+        },
+        "content": {
+          "id": {
+            "heading": "IoC Service Container",
+            "subtitle": "framework/Container/container.go — Inti Dependency Injection Rancago",
+            "sections": [
+              {
+                "title": "Jenis Binding yang Didukung",
+                "description": "Container mendukung tiga lifecycle binding ditambah alias untuk memudahkan resolusi interface:",
+                "bullets": [
+                  "Singleton: Satu instance seumur hidup container — dibuat saat pertama kali di-resolve.",
+                  "Transient (Bind): Instance baru setiap kali di-resolve.",
+                  "Instance: Instance yang sudah jadi, langsung didaftarkan ke container.",
+                  "Alias: Pemetaan alias → key konkret, mendukung resolusi berbasis interface."
+                ]
+              },
+              {
+                "title": "Contoh Pendaftaran di Bootstrap",
+                "description": "Cara mendaftarkan layanan ke container di bootstrap/app.go:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "bootstrap/app.go",
+                  "code": "package bootstrap\n\nimport (\n\t\"github.com/rancago/framework/framework/Container\"\n\t\"github.com/rancago/framework/framework/Cache\"\n\t\"github.com/rancago/framework/framework/WebSocket\"\n\t\"github.com/rancago/framework/app/Services\"\n)\n\n// Daftarkan Redis sebagai Singleton\napp.Container.Singleton(\"redis\", func(c *Container.Container) (interface{}, error) {\n\tmgr := Cache.NewRedisManager(&Cache.RedisConfig{\n\t\tHost: cfg.Redis.Host,\n\t\tPort: cfg.Redis.Port,\n\t})\n\t_ = mgr.Connect()\n\treturn mgr, nil\n})\n\n// Daftarkan WebSocket Hub (bergantung pada Redis)\napp.Container.Singleton(\"ws.hub\", func(c *Container.Container) (interface{}, error) {\n\tredisRaw, _ := c.Resolve(\"redis\")\n\thub := WebSocket.NewHub(redisRaw.(*Cache.RedisManager))\n\thub.StartRedisListener()\n\tgo hub.Run()\n\treturn hub, nil\n})\n\n// Daftarkan NotificationService\napp.Container.Singleton(\"service.notification\", func(c *Container.Container) (interface{}, error) {\n\tredisRaw, _ := c.Resolve(\"redis\")\n\thubRaw, _ := c.Resolve(\"ws.hub\")\n\treturn Services.NewNotificationService(\n\t\tredisRaw.(*Cache.RedisManager),\n\t\thubRaw.(*WebSocket.Hub),\n\t), nil\n})\n\n// Alias: memungkinkan resolve via nama interface\napp.Container.Alias(\"service.notification\", \"Contracts.NotificationService\")"
+                }
+              },
+              {
+                "title": "Cara Resolusi dari Container",
+                "description": "Resolve bisa menggunakan key langsung atau alias yang telah terdaftar:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "example_resolve.go",
+                  "code": "// Resolve menggunakan key konkret\nredisRaw, err := container.Resolve(\"redis\")\n\n// Resolve menggunakan alias interface\nsvcRaw, err := container.Resolve(\"Contracts.NotificationService\")\n\n// MustResolve — panic jika tidak ditemukan (aman digunakan saat boot)\nhub := container.MustResolve(\"ws.hub\").(*WebSocket.Hub)\n\n// Has — cek keberadaan binding\nif container.Has(\"storage\") {\n\tdriver, _ := container.Resolve(\"storage\")\n\t_ = driver\n}"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "IoC Service Container",
+            "subtitle": "framework/Container/container.go — The Dependency Injection Core",
+            "sections": [
+              {
+                "title": "Supported Binding Types",
+                "description": "The container supports three binding lifecycles plus aliases for interface-based resolution:",
+                "bullets": [
+                  "Singleton: One instance per container lifetime — created on first resolve.",
+                  "Transient (Bind): New instance on every resolve.",
+                  "Instance: Pre-built instance registered directly into the container.",
+                  "Alias: Maps alias names to concrete keys, enabling interface-based resolution."
+                ]
+              },
+              {
+                "title": "Registration in Bootstrap",
+                "description": "How to register services into the container in bootstrap/app.go:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "bootstrap/app.go",
+                  "code": "package bootstrap\n\nimport (\n\t\"github.com/rancago/framework/framework/Container\"\n\t\"github.com/rancago/framework/framework/Cache\"\n\t\"github.com/rancago/framework/framework/WebSocket\"\n\t\"github.com/rancago/framework/app/Services\"\n)\n\n// Register Redis as Singleton\napp.Container.Singleton(\"redis\", func(c *Container.Container) (interface{}, error) {\n\tmgr := Cache.NewRedisManager(&Cache.RedisConfig{\n\t\tHost: cfg.Redis.Host,\n\t\tPort: cfg.Redis.Port,\n\t})\n\t_ = mgr.Connect()\n\treturn mgr, nil\n})\n\n// Register WebSocket Hub (depends on Redis)\napp.Container.Singleton(\"ws.hub\", func(c *Container.Container) (interface{}, error) {\n\tredisRaw, _ := c.Resolve(\"redis\")\n\thub := WebSocket.NewHub(redisRaw.(*Cache.RedisManager))\n\thub.StartRedisListener()\n\tgo hub.Run()\n\treturn hub, nil\n})\n\n// Register NotificationService\napp.Container.Singleton(\"service.notification\", func(c *Container.Container) (interface{}, error) {\n\tredisRaw, _ := c.Resolve(\"redis\")\n\thubRaw, _ := c.Resolve(\"ws.hub\")\n\treturn Services.NewNotificationService(\n\t\tredisRaw.(*Cache.RedisManager),\n\t\thubRaw.(*WebSocket.Hub),\n\t), nil\n})\n\n// Alias: enables resolve by interface name\napp.Container.Alias(\"service.notification\", \"Contracts.NotificationService\")"
+                }
+              },
+              {
+                "title": "Resolving from the Container",
+                "description": "Resolve can use a concrete key or a registered alias:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "example_resolve.go",
+                  "code": "// Resolve by concrete key\nredisRaw, err := container.Resolve(\"redis\")\n\n// Resolve by interface alias\nsvcRaw, err := container.Resolve(\"Contracts.NotificationService\")\n\n// MustResolve — panics if not found (safe during boot)\nhub := container.MustResolve(\"ws.hub\").(*WebSocket.Hub)\n\n// Has — check if a binding exists\nif container.Has(\"storage\") {\n\tdriver, _ := container.Resolve(\"storage\")\n\t_ = driver\n}"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "service-provider",
+        "category": "core-framework",
+        "badge": "Provider",
+        "title": {
+          "id": "ServiceProvider Pattern",
+          "en": "ServiceProvider Pattern"
+        },
+        "summary": {
+          "id": "Pola Register + Boot untuk bootstrapping modular. Setiap provider mengikat layanan lalu menginisialisasi driver.",
+          "en": "Register + Boot lifecycle for modular bootstrapping. Each provider binds services then initializes drivers."
+        },
+        "content": {
+          "id": {
+            "heading": "ServiceProvider Pattern",
+            "subtitle": "app/Contracts/provider.go — Antarmuka Provider Modular",
+            "sections": [
+              {
+                "title": "Kontrak ServiceProvider",
+                "description": "Setiap modul (Auth, Storage, Google) mengimplementasi dua metode: Register untuk binding ke container, Boot untuk inisialisasi berat setelah semua provider terdaftar:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "app/Contracts/provider.go",
+                  "code": "package Contracts\n\nimport \"github.com/rancago/framework/framework/Container\"\n\n// ServiceProvider adalah interface yang harus diimplementasi oleh setiap provider.\n// Register dipanggil pertama untuk semua provider, baru kemudian Boot.\ntype ServiceProvider interface {\n\t// Register: bind services ke container — jangan lakukan inisialisasi berat di sini.\n\tRegister(c *Container.Container) error\n\t// Boot: dijalankan setelah semua provider Register. Wiring driver, seed data, dll.\n\tBoot(c *Container.Container) error\n}"
+                }
+              },
+              {
+                "title": "StorageServiceProvider — Contoh OCP",
+                "description": "Provider Storage menunjukkan prinsip OCP: tambah driver baru via RegisterFactory tanpa mengubah kode Manager:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "app/Providers/StorageServiceProvider.go",
+                  "code": "package Providers\n\nimport (\n\t\"github.com/rancago/framework/app/Contracts\"\n\t\"github.com/rancago/framework/framework/Container\"\n\t\"github.com/rancago/framework/framework/Storage\"\n)\n\ntype StorageServiceProvider struct {\n\tdiskCfgs    map[string]Contracts.StorageDiskConfig\n\tdefaultDisk string\n}\n\nfunc NewStorageServiceProvider(\n\tdefaultDisk string,\n\tdiskCfgs map[string]Contracts.StorageDiskConfig,\n) *StorageServiceProvider {\n\treturn &StorageServiceProvider{diskCfgs: diskCfgs, defaultDisk: defaultDisk}\n}\n\nfunc (p *StorageServiceProvider) Register(c *Container.Container) error {\n\tc.Singleton(\"storage\", func(c *Container.Container) (interface{}, error) {\n\t\tmgr := Storage.NewManager(p.defaultDisk, p.diskCfgs)\n\t\treturn mgr, nil\n\t})\n\tc.Alias(\"storage\", \"Storage.Manager\")\n\tc.Alias(\"storage\", \"Contracts.StorageDriver\")\n\treturn nil\n}\n\n// Boot: daftarkan driver factory tambahan di sini (OCP extension point).\nfunc (p *StorageServiceProvider) Boot(_ *Container.Container) error {\n\treturn nil\n}"
+                }
+              },
+              {
+                "title": "Mendaftarkan Provider di Bootstrap",
+                "description": "Semua provider didaftarkan sekaligus — Register semua dulu, baru Boot semua:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "bootstrap/app.go",
+                  "code": "app.RegisterProviders(\n\tProviders.NewStorageServiceProvider(\n\t\tcfg.Storage.Default,\n\t\tcfg.Storage.Disks,\n\t),\n\tProviders.NewGoogleServiceProvider(Google.GoogleConfig{\n\t\tClientID:     cfg.Google.ClientID,\n\t\tClientSecret: cfg.Google.ClientSecret,\n\t\tRedirectURL:  cfg.Google.RedirectURL,\n\t\tScopes:       cfg.Google.Scopes,\n\t}),\n\tProviders.NewAuthServiceProvider(\n\t\tcfg.Auth.Providers,\n\t\tuserIDCtxKey,\n\t),\n)\n// RegisterProviders memanggil Register() semua provider lebih dulu,\n// baru memanggil Boot() semua — urutan aman untuk dependensi antar-provider."
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "ServiceProvider Pattern",
+            "subtitle": "app/Contracts/provider.go — Modular Provider Interface",
+            "sections": [
+              {
+                "title": "ServiceProvider Contract",
+                "description": "Every module (Auth, Storage, Google) implements two methods: Register binds to the container, Boot initialises heavy resources after all providers have registered:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "app/Contracts/provider.go",
+                  "code": "package Contracts\n\nimport \"github.com/rancago/framework/framework/Container\"\n\n// ServiceProvider is the interface every module's provider must implement.\n// Register is called for all providers first, then Boot for all providers.\ntype ServiceProvider interface {\n\t// Register: bind services into the container — no heavy init here.\n\tRegister(c *Container.Container) error\n\t// Boot: runs after all providers have registered. Wire drivers, seed data, etc.\n\tBoot(c *Container.Container) error\n}"
+                }
+              },
+              {
+                "title": "StorageServiceProvider — OCP in Practice",
+                "description": "The Storage provider demonstrates the Open/Closed Principle: add a new driver via RegisterFactory without modifying the Manager:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "app/Providers/StorageServiceProvider.go",
+                  "code": "package Providers\n\nimport (\n\t\"github.com/rancago/framework/app/Contracts\"\n\t\"github.com/rancago/framework/framework/Container\"\n\t\"github.com/rancago/framework/framework/Storage\"\n)\n\ntype StorageServiceProvider struct {\n\tdiskCfgs    map[string]Contracts.StorageDiskConfig\n\tdefaultDisk string\n}\n\nfunc NewStorageServiceProvider(\n\tdefaultDisk string,\n\tdiskCfgs map[string]Contracts.StorageDiskConfig,\n) *StorageServiceProvider {\n\treturn &StorageServiceProvider{diskCfgs: diskCfgs, defaultDisk: defaultDisk}\n}\n\nfunc (p *StorageServiceProvider) Register(c *Container.Container) error {\n\tc.Singleton(\"storage\", func(c *Container.Container) (interface{}, error) {\n\t\tmgr := Storage.NewManager(p.defaultDisk, p.diskCfgs)\n\t\treturn mgr, nil\n\t})\n\tc.Alias(\"storage\", \"Storage.Manager\")\n\tc.Alias(\"storage\", \"Contracts.StorageDriver\")\n\treturn nil\n}\n\n// Boot: register additional driver factories here (OCP extension point).\nfunc (p *StorageServiceProvider) Boot(_ *Container.Container) error {\n\treturn nil\n}"
+                }
+              },
+              {
+                "title": "Registering Providers in Bootstrap",
+                "description": "All providers are registered at once — Register all first, then Boot all:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "bootstrap/app.go",
+                  "code": "app.RegisterProviders(\n\tProviders.NewStorageServiceProvider(\n\t\tcfg.Storage.Default,\n\t\tcfg.Storage.Disks,\n\t),\n\tProviders.NewGoogleServiceProvider(Google.GoogleConfig{\n\t\tClientID:     cfg.Google.ClientID,\n\t\tClientSecret: cfg.Google.ClientSecret,\n\t\tRedirectURL:  cfg.Google.RedirectURL,\n\t\tScopes:       cfg.Google.Scopes,\n\t}),\n\tProviders.NewAuthServiceProvider(\n\t\tcfg.Auth.Providers,\n\t\tuserIDCtxKey,\n\t),\n)\n// RegisterProviders calls Register() on all providers first,\n// then Boot() on all — safe ordering for cross-provider dependencies."
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "solid-principles",
+        "category": "core-framework",
+        "badge": "SOLID",
+        "title": {
+          "id": "Penerapan Prinsip SOLID",
+          "en": "SOLID Principles Enforcement"
+        },
+        "summary": {
+          "id": "Bagaimana arsitektur Rancago secara struktural memaksa penerapan S.O.L.I.D.",
+          "en": "How Rancago's architecture structurally enforces S.O.L.I.D. compliance."
+        },
+        "content": {
+          "id": {
+            "heading": "SOLID dalam Rancago",
+            "subtitle": "Arsitektur sebagai Mekanisme Penegakan Prinsip Desain",
+            "sections": [
+              {
+                "title": "5 Prinsip SOLID dalam Konteks Rancago",
+                "description": "Setiap prinsip SOLID diimplementasi melalui konvensi arsitektur, bukan hanya dokumentasi:",
+                "bullets": [
+                  "S — Single Responsibility: Satu file = satu tanggung jawab. Entity hanya berisi state & behavior domain. Use case hanya berisi orkestrasi bisnis.",
+                  "O — Open/Closed: Storage.Manager.RegisterFactory() dan SocialiteManager.RegisterDriver() adalah extension point OCP — tambah kemampuan tanpa ubah kode lama.",
+                  "L — Liskov Substitution: Semua adapter driven (InMemory, Redis, Storage) dapat disubstitusi karena mengimplementasi interface port yang sama.",
+                  "I — Interface Segregation: Port driven dan driving dipisah granular: NotificationRepository terpisah dari UserRepository terpisah dari CachePort.",
+                  "D — Dependency Inversion: Use case hanya bergantung pada interface port — tidak pernah pada struct konkret adapter."
+                ]
+              },
+              {
+                "title": "Contoh DIP — Dependency Inversion dalam Use Case",
+                "description": "NotificationInteractor bergantung pada interface port, bukan implementasi konkret:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "internal/application/usecases/notification_usecase.go",
+                  "code": "package usecases\n\nimport (\n\t\"github.com/rancago/framework/internal/ports/driven\"\n\t\"github.com/rancago/framework/internal/ports/driving\"\n)\n\ntype NotificationInteractor struct {\n\t// Semua field adalah interface (driven ports) — bukan struct konkret\n\tnotifRepo driven.NotificationRepository  // bukan *inmemory.Repo\n\tcache     driven.CachePort               // bukan *Cache.RedisManager\n\tws        driven.WebSocketPort           // bukan *WebSocket.Hub\n}\n\n// Constructor hanya menerima interface — sangat mudah di-test dan disubstitusi\nfunc NewNotificationInteractor(\n\trepo driven.NotificationRepository,\n\tcache driven.CachePort,\n\tws driven.WebSocketPort,\n) driving.NotificationUseCase {\n\treturn &NotificationInteractor{\n\t\tnotifRepo: repo,\n\t\tcache:     cache,\n\t\tws:        ws,\n\t}\n}"
+                }
+              },
+              {
+                "title": "Contoh OCP — Storage Manager Extension Point",
+                "description": "Tambah driver S3/MinIO/Google Drive tanpa modifikasi pada kode Manager:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "framework/Storage/manager.go",
+                  "code": "// RegisterFactory adalah OCP extension point.\n// Tambah driver baru tanpa mengubah Manager.\nmgr.RegisterFactory(\"s3\", func(cfg Contracts.StorageDiskConfig) (Contracts.StorageDriver, error) {\n\treturn NewS3Driver(cfg.Endpoint, cfg.Key, cfg.Secret, cfg.Bucket), nil\n})\n\nmgr.RegisterFactory(\"gdrive\", func(cfg Contracts.StorageDiskConfig) (Contracts.StorageDriver, error) {\n\treturn NewGoogleDriveDriver(cfg.Credentials), nil\n})\n\n// Sekarang Disk(\"s3\") atau Disk(\"gdrive\") akan menggunakan factory yang benar\ndriver, err := mgr.Disk(\"s3\")\nfile, err := driver.Get(ctx, \"uploads/report.pdf\")"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "SOLID in Rancago",
+            "subtitle": "Architecture as a Design Principle Enforcement Mechanism",
+            "sections": [
+              {
+                "title": "5 SOLID Principles in the Rancago Context",
+                "description": "Each SOLID principle is implemented through architectural conventions, not just documentation:",
+                "bullets": [
+                  "S — Single Responsibility: One file = one responsibility. Entity only holds domain state & behavior. Use case only holds business orchestration.",
+                  "O — Open/Closed: Storage.Manager.RegisterFactory() and SocialiteManager.RegisterDriver() are OCP extension points — add capabilities without modifying existing code.",
+                  "L — Liskov Substitution: All driven adapters (InMemory, Redis, Storage) are substitutable because they implement the same port interface.",
+                  "I — Interface Segregation: Driven and driving ports are granularly separated: NotificationRepository is separate from UserRepository separate from CachePort.",
+                  "D — Dependency Inversion: Use cases depend only on port interfaces — never on concrete adapter structs."
+                ]
+              },
+              {
+                "title": "DIP Example — Dependency Inversion in Use Cases",
+                "description": "NotificationInteractor depends on port interfaces, never on concrete implementations:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "internal/application/usecases/notification_usecase.go",
+                  "code": "package usecases\n\nimport (\n\t\"github.com/rancago/framework/internal/ports/driven\"\n\t\"github.com/rancago/framework/internal/ports/driving\"\n)\n\ntype NotificationInteractor struct {\n\t// All fields are interfaces (driven ports) — not concrete structs\n\tnotifRepo driven.NotificationRepository  // not *inmemory.Repo\n\tcache     driven.CachePort               // not *Cache.RedisManager\n\tws        driven.WebSocketPort           // not *WebSocket.Hub\n}\n\n// Constructor only accepts interfaces — trivially testable and substitutable\nfunc NewNotificationInteractor(\n\trepo driven.NotificationRepository,\n\tcache driven.CachePort,\n\tws driven.WebSocketPort,\n) driving.NotificationUseCase {\n\treturn &NotificationInteractor{\n\t\tnotifRepo: repo,\n\t\tcache:     cache,\n\t\tws:        ws,\n\t}\n}"
+                }
+              },
+              {
+                "title": "OCP Example — Storage Manager Extension Point",
+                "description": "Add S3/MinIO/Google Drive driver without modifying the Manager code:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "framework/Storage/manager.go",
+                  "code": "// RegisterFactory is the OCP extension point.\n// Add new drivers without touching Manager.\nmgr.RegisterFactory(\"s3\", func(cfg Contracts.StorageDiskConfig) (Contracts.StorageDriver, error) {\n\treturn NewS3Driver(cfg.Endpoint, cfg.Key, cfg.Secret, cfg.Bucket), nil\n})\n\nmgr.RegisterFactory(\"gdrive\", func(cfg Contracts.StorageDiskConfig) (Contracts.StorageDriver, error) {\n\treturn NewGoogleDriveDriver(cfg.Credentials), nil\n})\n\n// Now Disk(\"s3\") or Disk(\"gdrive\") will use the correct factory\ndriver, err := mgr.Disk(\"s3\")\nfile, err := driver.Get(ctx, \"uploads/report.pdf\")"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "features",
+    "title": {
+      "id": "⚡ Fitur Framework",
+      "en": "⚡ Framework Features"
+    },
+    "icon": "Zap",
+    "items": [
+      {
+        "id": "storage-manager",
+        "category": "features",
+        "badge": "Storage",
+        "title": {
+          "id": "Multi-Storage Manager",
+          "en": "Multi-Storage Manager"
+        },
+        "summary": {
+          "id": "Manager penyimpanan multi-driver (MinIO/S3/Google Drive/Memory) dengan OCP via RegisterFactory.",
+          "en": "Multi-driver storage manager (MinIO/S3/Google Drive/Memory) with OCP via RegisterFactory."
+        },
+        "content": {
+          "id": {
+            "heading": "Multi-Storage Manager",
+            "subtitle": "framework/Storage/manager.go — OCP Storage dengan Factory Pattern",
+            "sections": [
+              {
+                "title": "Cara Kerja Storage Manager",
+                "description": "Manager melakukan lazy-init driver dari konfigurasi disk. Tambah driver baru cukup dengan RegisterFactory:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "framework/Storage/manager.go (usage)",
+                  "code": "package example\n\nimport (\n\t\"context\"\n\t\"github.com/rancago/framework/framework/Storage\"\n\t\"github.com/rancago/framework/app/Contracts\"\n)\n\nfunc setupStorage() {\n\tdiskCfgs := map[string]Contracts.StorageDiskConfig{\n\t\t\"local\":  {Driver: \"memory\"},\n\t\t\"s3\":     {Driver: \"s3\",     Endpoint: \"s3.amazonaws.com\",  Bucket: \"my-bucket\"},\n\t\t\"minio\":  {Driver: \"minio\",  Endpoint: \"minio.example.com\", Bucket: \"uploads\"},\n\t\t\"gdrive\": {Driver: \"gdrive\", Credentials: \"/etc/creds.json\"},\n\t}\n\n\tmgr := Storage.NewManager(\"local\", diskCfgs)\n\n\t// OCP: daftarkan driver baru tanpa mengubah Manager\n\tmgr.RegisterFactory(\"minio\", func(cfg Contracts.StorageDiskConfig) (Contracts.StorageDriver, error) {\n\t\treturn NewMinioDriver(cfg.Endpoint, cfg.Key, cfg.Secret, cfg.Bucket), nil\n\t})\n\n\t// Gunakan default disk\n\tdefaultDriver := mgr.DefaultDisk()\n\t_ = defaultDriver\n\n\t// Gunakan disk bernama\n\ts3Driver, err := mgr.Disk(\"s3\")\n\tif err == nil {\n\t\tfile, _ := s3Driver.Get(context.Background(), \"reports/2026.pdf\")\n\t\t_ = file\n\t}\n\n\t// Proxy untuk constructor injection tanpa ketergantungan pada Manager\n\tproxy := mgr.Proxy(\"minio\")\n\t_ = proxy\n}"
+                }
+              },
+              {
+                "title": "Diagram Driver OCP",
+                "description": "Bagaimana factory pattern memungkinkan penambahan driver tanpa modifikasi Manager:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Storage-OCP.mmd",
+                  "code": "flowchart LR\n  App[Application Code] --> Mgr[Storage.Manager]\n  Mgr --> |Disk(name)| Factory{Factory Registry}\n  Factory --> |driver=memory| MemDriver[Memory Driver]\n  Factory --> |driver=s3| S3Driver[S3 Driver]\n  Factory --> |driver=minio| MinioDriver[MinIO Driver]\n  Factory --> |driver=gdrive| GDriveDriver[Google Drive Driver]\n\n  Mgr -. RegisterFactory .-> Factory\n  note1[\"OCP: Add driver = RegisterFactory()\\nNo Manager code changes needed\"]"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "Multi-Storage Manager",
+            "subtitle": "framework/Storage/manager.go — OCP Storage with Factory Pattern",
+            "sections": [
+              {
+                "title": "How the Storage Manager Works",
+                "description": "The manager lazy-initialises drivers from disk configuration. Add new drivers simply with RegisterFactory:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "framework/Storage/manager.go (usage)",
+                  "code": "package example\n\nimport (\n\t\"context\"\n\t\"github.com/rancago/framework/framework/Storage\"\n\t\"github.com/rancago/framework/app/Contracts\"\n)\n\nfunc setupStorage() {\n\tdiskCfgs := map[string]Contracts.StorageDiskConfig{\n\t\t\"local\":  {Driver: \"memory\"},\n\t\t\"s3\":     {Driver: \"s3\",     Endpoint: \"s3.amazonaws.com\",  Bucket: \"my-bucket\"},\n\t\t\"minio\":  {Driver: \"minio\",  Endpoint: \"minio.example.com\", Bucket: \"uploads\"},\n\t\t\"gdrive\": {Driver: \"gdrive\", Credentials: \"/etc/creds.json\"},\n\t}\n\n\tmgr := Storage.NewManager(\"local\", diskCfgs)\n\n\t// OCP: register new driver without touching Manager\n\tmgr.RegisterFactory(\"minio\", func(cfg Contracts.StorageDiskConfig) (Contracts.StorageDriver, error) {\n\t\treturn NewMinioDriver(cfg.Endpoint, cfg.Key, cfg.Secret, cfg.Bucket), nil\n\t})\n\n\t// Use the default disk\n\tdefaultDriver := mgr.DefaultDisk()\n\t_ = defaultDriver\n\n\t// Use a named disk\n\ts3Driver, err := mgr.Disk(\"s3\")\n\tif err == nil {\n\t\tfile, _ := s3Driver.Get(context.Background(), \"reports/2026.pdf\")\n\t\t_ = file\n\t}\n\n\t// Proxy for constructor injection without Manager dependency\n\tproxy := mgr.Proxy(\"minio\")\n\t_ = proxy\n}"
+                }
+              },
+              {
+                "title": "OCP Driver Diagram",
+                "description": "How the factory pattern enables adding drivers without modifying Manager:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Storage-OCP.mmd",
+                  "code": "flowchart LR\n  App[Application Code] --> Mgr[Storage.Manager]\n  Mgr --> |Disk(name)| Factory{Factory Registry}\n  Factory --> |driver=memory| MemDriver[Memory Driver]\n  Factory --> |driver=s3| S3Driver[S3 Driver]\n  Factory --> |driver=minio| MinioDriver[MinIO Driver]\n  Factory --> |driver=gdrive| GDriveDriver[Google Drive Driver]\n\n  Mgr -. RegisterFactory .-> Factory\n  note1[\"OCP: Add driver = RegisterFactory()\\nNo Manager code changes needed\"]"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "auth-socialite-rbac",
+        "category": "features",
+        "badge": "Auth",
+        "title": {
+          "id": "OAuth Socialite + Redis RBAC",
+          "en": "OAuth Socialite + Redis RBAC"
+        },
+        "summary": {
+          "id": "Login OAuth multi-provider (Google/GitHub/Facebook) + RBAC roles & permissions berbasis Redis.",
+          "en": "Multi-provider OAuth login (Google/GitHub/Facebook) + Redis-backed RBAC roles & permissions."
+        },
+        "content": {
+          "id": {
+            "heading": "OAuth Socialite & RBAC",
+            "subtitle": "framework/Auth/ — Socialite Manager + Role/Permission RBAC",
+            "sections": [
+              {
+                "title": "Domain Entity User dengan RBAC",
+                "description": "Entity User menyimpan roles dan permissions, dengan metode helper HasRole() dan HasPermission():",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "internal/domain/entities/user.go",
+                  "code": "package entities\n\nimport (\n\t\"time\"\n\t\"github.com/rancago/framework/internal/domain/valueobjects\"\n)\n\ntype User struct {\n\tID              valueobjects.ID\n\tName            string\n\tEmail           valueobjects.Email\n\tPasswordHash    string\n\tAvatarURL       string\n\tProvider        string   // \"google\", \"github\", \"facebook\", \"\"\n\tProviderID      string\n\tEmailVerifiedAt *time.Time\n\tRoles           []*Role\n\tPermissions     []*Permission\n\tCreatedAt       time.Time\n\tUpdatedAt       time.Time\n}\n\n// HasRole cek keanggotaan role\nfunc (u *User) HasRole(roleName string) bool {\n\tfor _, r := range u.Roles {\n\t\tif r.Name == roleName {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}\n\n// HasPermission cek permission langsung + via role yang dimiliki\nfunc (u *User) HasPermission(permName string) bool {\n\tfor _, p := range u.Permissions {\n\t\tif p.Name == permName {\n\t\t\treturn true\n\t\t}\n\t}\n\tfor _, r := range u.Roles {\n\t\tfor _, rp := range r.Permissions {\n\t\t\tif rp.Name == permName {\n\t\t\t\treturn true\n\t\t\t}\n\t\t}\n\t}\n\treturn false\n}"
+                }
+              },
+              {
+                "title": "OAuth Socialite — Login dengan Provider",
+                "description": "Use case mengorkestrasi OAuth flow: exchange code → get user info → create or find user:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "internal/application/usecases/user_usecase.go",
+                  "code": "// LoginWithProvider mengorkestrasi full OAuth2 flow\nfunc (uc *UserInteractor) LoginWithProvider(\n\tctx context.Context,\n\tproviderName, code string,\n) (*entities.User, error) {\n\tp, err := uc.socialite.Provider(providerName)\n\tif err != nil {\n\t\treturn nil, derrors.New(\"user.socialite\", derrors.ErrNotFound, err.Error())\n\t}\n\ttok, err := p.ExchangeCode(ctx, code)\n\tif err != nil {\n\t\treturn nil, derrors.New(\"user.socialite\", derrors.ErrUnauthorized, err.Error())\n\t}\n\tinfo, err := p.GetUserInfo(ctx, tok)\n\tif err != nil {\n\t\treturn nil, derrors.New(\"user.socialite\", derrors.ErrInternal, err.Error())\n\t}\n\t// Cari user lama atau buat baru\n\tuser, err := uc.users.FindByProvider(ctx, providerName, info.ID)\n\tif err == nil && user != nil {\n\t\treturn user, nil // user lama ditemukan\n\t}\n\temail, _ := valueobjects.NewEmail(info.Email)\n\tuser = entities.NewUser(info.Name, email)\n\tuser.Provider = providerName\n\tuser.ProviderID = info.ID\n\tuser.AvatarURL = info.AvatarURL\n\tuser.EmailVerifiedAt = &user.CreatedAt\n\treturn uc.users.Create(ctx, user)\n}"
+                }
+              },
+              {
+                "title": "Daftarkan Provider OAuth",
+                "description": "SocialiteManager menggunakan pola RegisterDriver (OCP) untuk menambah provider:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "framework/Auth/socialite.go (usage)",
+                  "code": "socialite := Auth.NewSocialiteManager()\n\n// Daftarkan Google\nsocialite.RegisterDriver(\"google\", func() (Contracts.AuthProvider, error) {\n\treturn Auth.NewGenericOAuthProvider(\"google\", Auth.OAuthConfig{\n\t\tClientID:     cfg.Google.ClientID,\n\t\tClientSecret: cfg.Google.ClientSecret,\n\t\tRedirectURL:  cfg.Google.RedirectURL,\n\t\tAuthURL:      \"https://accounts.google.com/o/oauth2/auth\",\n\t\tTokenURL:     \"https://oauth2.googleapis.com/token\",\n\t\tUserInfoURL:  \"https://www.googleapis.com/oauth2/v3/userinfo\",\n\t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n\t}), nil\n})\n\n// Daftarkan GitHub\nsocialite.RegisterDriver(\"github\", func() (Contracts.AuthProvider, error) {\n\treturn Auth.NewGenericOAuthProvider(\"github\", Auth.OAuthConfig{\n\t\tClientID:     cfg.GitHub.ClientID,\n\t\tClientSecret: cfg.GitHub.ClientSecret,\n\t\tRedirectURL:  cfg.GitHub.RedirectURL,\n\t\tAuthURL:      \"https://github.com/login/oauth/authorize\",\n\t\tTokenURL:     \"https://github.com/login/oauth/access_token\",\n\t\tUserInfoURL:  \"https://api.github.com/user\",\n\t}), nil\n})"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "OAuth Socialite & RBAC",
+            "subtitle": "framework/Auth/ — Socialite Manager + Role/Permission RBAC",
+            "sections": [
+              {
+                "title": "User Domain Entity with RBAC",
+                "description": "The User entity stores roles and permissions with HasRole() and HasPermission() helpers:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "internal/domain/entities/user.go",
+                  "code": "package entities\n\nimport (\n\t\"time\"\n\t\"github.com/rancago/framework/internal/domain/valueobjects\"\n)\n\ntype User struct {\n\tID              valueobjects.ID\n\tName            string\n\tEmail           valueobjects.Email\n\tPasswordHash    string\n\tAvatarURL       string\n\tProvider        string   // \"google\", \"github\", \"facebook\", \"\"\n\tProviderID      string\n\tEmailVerifiedAt *time.Time\n\tRoles           []*Role\n\tPermissions     []*Permission\n\tCreatedAt       time.Time\n\tUpdatedAt       time.Time\n}\n\n// HasRole checks role membership\nfunc (u *User) HasRole(roleName string) bool {\n\tfor _, r := range u.Roles {\n\t\tif r.Name == roleName {\n\t\t\treturn true\n\t\t}\n\t}\n\treturn false\n}\n\n// HasPermission checks direct permissions + permissions inherited through roles\nfunc (u *User) HasPermission(permName string) bool {\n\tfor _, p := range u.Permissions {\n\t\tif p.Name == permName {\n\t\t\treturn true\n\t\t}\n\t}\n\tfor _, r := range u.Roles {\n\t\tfor _, rp := range r.Permissions {\n\t\t\tif rp.Name == permName {\n\t\t\t\treturn true\n\t\t\t}\n\t\t}\n\t}\n\treturn false\n}"
+                }
+              },
+              {
+                "title": "OAuth Socialite — Login with Provider",
+                "description": "The use case orchestrates the full OAuth flow: exchange code → get user info → create or find user:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "internal/application/usecases/user_usecase.go",
+                  "code": "// LoginWithProvider orchestrates the full OAuth2 flow\nfunc (uc *UserInteractor) LoginWithProvider(\n\tctx context.Context,\n\tproviderName, code string,\n) (*entities.User, error) {\n\tp, err := uc.socialite.Provider(providerName)\n\tif err != nil {\n\t\treturn nil, derrors.New(\"user.socialite\", derrors.ErrNotFound, err.Error())\n\t}\n\ttok, err := p.ExchangeCode(ctx, code)\n\tif err != nil {\n\t\treturn nil, derrors.New(\"user.socialite\", derrors.ErrUnauthorized, err.Error())\n\t}\n\tinfo, err := p.GetUserInfo(ctx, tok)\n\tif err != nil {\n\t\treturn nil, derrors.New(\"user.socialite\", derrors.ErrInternal, err.Error())\n\t}\n\t// Find existing user or create new\n\tuser, err := uc.users.FindByProvider(ctx, providerName, info.ID)\n\tif err == nil && user != nil {\n\t\treturn user, nil // existing user found\n\t}\n\temail, _ := valueobjects.NewEmail(info.Email)\n\tuser = entities.NewUser(info.Name, email)\n\tuser.Provider = providerName\n\tuser.ProviderID = info.ID\n\tuser.AvatarURL = info.AvatarURL\n\tuser.EmailVerifiedAt = &user.CreatedAt\n\treturn uc.users.Create(ctx, user)\n}"
+                }
+              },
+              {
+                "title": "Registering OAuth Providers",
+                "description": "SocialiteManager uses RegisterDriver (OCP) pattern to add providers:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "framework/Auth/socialite.go (usage)",
+                  "code": "socialite := Auth.NewSocialiteManager()\n\n// Register Google\nsocialite.RegisterDriver(\"google\", func() (Contracts.AuthProvider, error) {\n\treturn Auth.NewGenericOAuthProvider(\"google\", Auth.OAuthConfig{\n\t\tClientID:     cfg.Google.ClientID,\n\t\tClientSecret: cfg.Google.ClientSecret,\n\t\tRedirectURL:  cfg.Google.RedirectURL,\n\t\tAuthURL:      \"https://accounts.google.com/o/oauth2/auth\",\n\t\tTokenURL:     \"https://oauth2.googleapis.com/token\",\n\t\tUserInfoURL:  \"https://www.googleapis.com/oauth2/v3/userinfo\",\n\t\tScopes:       []string{\"openid\", \"email\", \"profile\"},\n\t}), nil\n})\n\n// Register GitHub\nsocialite.RegisterDriver(\"github\", func() (Contracts.AuthProvider, error) {\n\treturn Auth.NewGenericOAuthProvider(\"github\", Auth.OAuthConfig{\n\t\tClientID:     cfg.GitHub.ClientID,\n\t\tClientSecret: cfg.GitHub.ClientSecret,\n\t\tRedirectURL:  cfg.GitHub.RedirectURL,\n\t\tAuthURL:      \"https://github.com/login/oauth/authorize\",\n\t\tTokenURL:     \"https://github.com/login/oauth/access_token\",\n\t\tUserInfoURL:  \"https://api.github.com/user\",\n\t}), nil\n})"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "notifications-websocket",
+        "category": "features",
+        "badge": "Realtime",
+        "title": {
+          "id": "Notifikasi 3-in-1 + WebSocket Hub",
+          "en": "3-in-1 Notifications + WebSocket Hub"
+        },
+        "summary": {
+          "id": "NotificationService dengan transport REST, gRPC, dan WebSocket dari satu use case. Hub scalable via Redis PubSub.",
+          "en": "NotificationService delivering via REST, gRPC, and WebSocket from one use case. Scalable Hub via Redis PubSub."
+        },
+        "content": {
+          "id": {
+            "heading": "Notifikasi 3-in-1 & WebSocket Hub",
+            "subtitle": "framework/Transport/ + framework/WebSocket/ — Real-time Multi-Channel",
+            "sections": [
+              {
+                "title": "NotificationInteractor — Use Case Terpadu",
+                "description": "Satu use case menangani simpan ke DB, update Redis unread counter, dan kirim ke WebSocket secara bersamaan:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "internal/application/usecases/notification_usecase.go",
+                  "code": "func (uc *NotificationInteractor) Send(\n\tctx context.Context,\n\tuserID, title, body string,\n\tchannel entities.NotificationChannel,\n\tdata map[string]string,\n) (*entities.Notification, error) {\n\t// 1. Buat & simpan notifikasi ke repository\n\tn, _ := entities.NewNotification(userID, title, body, channel)\n\tsaved, _ := uc.notifRepo.Create(ctx, n)\n\n\t// 2. Increment Redis unread counter\n\tif uc.cache != nil {\n\t\tcacheKey := fmt.Sprintf(\"notif:unread:%s\", userID)\n\t\tuc.cache.Incr(ctx, cacheKey)\n\t\tuc.cache.Expire(ctx, cacheKey, 7*24*time.Hour)\n\t}\n\n\t// 3. Kirim real-time via WebSocket\n\tif uc.ws != nil {\n\t\tmsg := driven.WebSocketMessage{\n\t\t\tType:    \"notification:new\",\n\t\t\tChannel: fmt.Sprintf(\"user:%s\", saved.UserID),\n\t\t\tPayload: map[string]interface{}{\n\t\t\t\t\"id\":    saved.ID.String(),\n\t\t\t\t\"title\": saved.Title,\n\t\t\t\t\"body\":  saved.Body,\n\t\t\t},\n\t\t}\n\t\traw, _ := json.Marshal(msg)\n\t\tuc.ws.SendDirect(userID, raw)       // kirim ke user spesifik\n\t\tuc.ws.PublishChannel(msg.Channel, raw) // broadcast ke channel\n\t}\n\treturn saved, nil\n}"
+                }
+              },
+              {
+                "title": "WebSocket Hub — Skalabel via Redis PubSub",
+                "description": "Hub mendukung Direct, Channel, dan Broadcast routing. Multi-node via Redis Pub/Sub untuk horizontal scaling:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "framework/WebSocket/hub.go",
+                  "code": "// PublishChannel mengirim pesan ke semua klien di channel,\n// DAN mempublikasikan ke Redis agar node lain juga menerima.\nfunc (h *Hub) PublishChannel(channel string, raw []byte) {\n\th.mu.RLock()\n\tfor c := range h.channels[channel] {\n\t\tselect {\n\t\tcase c.Send <- raw:\n\t\tdefault:\n\t\t}\n\t}\n\th.mu.RUnlock()\n\n\t// Publish ke Redis untuk instance Hub lain (multi-node)\n\tif h.redis != nil {\n\t\tredisKey := \"rancago:ws:\" + channel\n\t\th.redis.Publish(nil, redisKey, raw)\n\t}\n}\n\n// StartRedisListener subscribe ke channel broadcast global\nfunc (h *Hub) StartRedisListener() {\n\tif h.redis == nil {\n\t\treturn\n\t}\n\tgo func() {\n\t\th.redis.Subscribe(nil, \"rancago:ws:broadcast\", func(msg []byte) {\n\t\t\th.Broadcast(msg) // relay ke semua klien lokal\n\t\t})\n\t}()\n}"
+                }
+              },
+              {
+                "title": "Diagram Alir Notifikasi Multi-Transport",
+                "description": "Bagaimana satu use case menghasilkan notifikasi di semua transport sekaligus:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Notification-Flow.mmd",
+                  "code": "sequenceDiagram\n  participant Client\n  participant HTTPHandler\n  participant NotifUseCase\n  participant Repository\n  participant Redis\n  participant WSHub\n  participant WSClient\n\n  Client->>HTTPHandler: POST /api/v1/notifications/send\n  HTTPHandler->>NotifUseCase: Send(userID, title, body, channel)\n  NotifUseCase->>Repository: Create(notification)\n  Repository-->>NotifUseCase: saved notification\n  NotifUseCase->>Redis: INCR notif:unread:{userID}\n  NotifUseCase->>WSHub: SendDirect(userID, msg)\n  NotifUseCase->>WSHub: PublishChannel(\"user:{id}\", msg)\n  WSHub->>Redis: PUBLISH rancago:ws:user:{id}\n  WSHub->>WSClient: push real-time message\n  NotifUseCase-->>HTTPHandler: notification response\n  HTTPHandler-->>Client: 200 OK + notification JSON"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "3-in-1 Notifications & WebSocket Hub",
+            "subtitle": "framework/Transport/ + framework/WebSocket/ — Real-time Multi-Channel",
+            "sections": [
+              {
+                "title": "NotificationInteractor — Unified Use Case",
+                "description": "One use case handles DB persistence, Redis unread counter update, and WebSocket delivery simultaneously:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "internal/application/usecases/notification_usecase.go",
+                  "code": "func (uc *NotificationInteractor) Send(\n\tctx context.Context,\n\tuserID, title, body string,\n\tchannel entities.NotificationChannel,\n\tdata map[string]string,\n) (*entities.Notification, error) {\n\t// 1. Create & persist notification to repository\n\tn, _ := entities.NewNotification(userID, title, body, channel)\n\tsaved, _ := uc.notifRepo.Create(ctx, n)\n\n\t// 2. Increment Redis unread counter\n\tif uc.cache != nil {\n\t\tcacheKey := fmt.Sprintf(\"notif:unread:%s\", userID)\n\t\tuc.cache.Incr(ctx, cacheKey)\n\t\tuc.cache.Expire(ctx, cacheKey, 7*24*time.Hour)\n\t}\n\n\t// 3. Send real-time via WebSocket\n\tif uc.ws != nil {\n\t\tmsg := driven.WebSocketMessage{\n\t\t\tType:    \"notification:new\",\n\t\t\tChannel: fmt.Sprintf(\"user:%s\", saved.UserID),\n\t\t\tPayload: map[string]interface{}{\n\t\t\t\t\"id\":    saved.ID.String(),\n\t\t\t\t\"title\": saved.Title,\n\t\t\t\t\"body\":  saved.Body,\n\t\t\t},\n\t\t}\n\t\traw, _ := json.Marshal(msg)\n\t\tuc.ws.SendDirect(userID, raw)          // send to specific user\n\t\tuc.ws.PublishChannel(msg.Channel, raw) // broadcast to channel\n\t}\n\treturn saved, nil\n}"
+                }
+              },
+              {
+                "title": "WebSocket Hub — Scalable via Redis PubSub",
+                "description": "The Hub supports Direct, Channel, and Broadcast routing with Redis Pub/Sub for horizontal scaling:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "framework/WebSocket/hub.go",
+                  "code": "// PublishChannel sends to all clients in the channel,\n// AND publishes to Redis so other nodes can relay it.\nfunc (h *Hub) PublishChannel(channel string, raw []byte) {\n\th.mu.RLock()\n\tfor c := range h.channels[channel] {\n\t\tselect {\n\t\tcase c.Send <- raw:\n\t\tdefault:\n\t\t}\n\t}\n\th.mu.RUnlock()\n\n\t// Publish to Redis for other Hub instances (multi-node)\n\tif h.redis != nil {\n\t\tredisKey := \"rancago:ws:\" + channel\n\t\th.redis.Publish(nil, redisKey, raw)\n\t}\n}\n\n// StartRedisListener subscribes to the global broadcast channel\nfunc (h *Hub) StartRedisListener() {\n\tif h.redis == nil {\n\t\treturn\n\t}\n\tgo func() {\n\t\th.redis.Subscribe(nil, \"rancago:ws:broadcast\", func(msg []byte) {\n\t\t\th.Broadcast(msg) // relay to all local clients\n\t\t})\n\t}()\n}"
+                }
+              },
+              {
+                "title": "Multi-Transport Notification Flow Diagram",
+                "description": "How one use case produces notifications across all transports simultaneously:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Notification-Flow.mmd",
+                  "code": "sequenceDiagram\n  participant Client\n  participant HTTPHandler\n  participant NotifUseCase\n  participant Repository\n  participant Redis\n  participant WSHub\n  participant WSClient\n\n  Client->>HTTPHandler: POST /api/v1/notifications/send\n  HTTPHandler->>NotifUseCase: Send(userID, title, body, channel)\n  NotifUseCase->>Repository: Create(notification)\n  Repository-->>NotifUseCase: saved notification\n  NotifUseCase->>Redis: INCR notif:unread:{userID}\n  NotifUseCase->>WSHub: SendDirect(userID, msg)\n  NotifUseCase->>WSHub: PublishChannel(\"user:{id}\", msg)\n  WSHub->>Redis: PUBLISH rancago:ws:user:{id}\n  WSHub->>WSClient: push real-time message\n  NotifUseCase-->>HTTPHandler: notification response\n  HTTPHandler-->>Client: 200 OK + notification JSON"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "pgvector",
+        "category": "features",
+        "badge": "AI/Search",
+        "title": {
+          "id": "Generic Repository + pgvector Semantic Search",
+          "en": "Generic Repository + pgvector Semantic Search"
+        },
+        "summary": {
+          "id": "Generic Repository[T] dengan dukungan pgvector 1536-dimensi HNSW cosine index untuk pencarian semantik.",
+          "en": "Generic Repository[T] with pgvector 1536-dimension HNSW cosine index for semantic similarity search."
+        },
+        "content": {
+          "id": {
+            "heading": "Generic Repository & pgvector Semantic Search",
+            "subtitle": "app/Models/vector.go + app/Models/models.go — AI-Ready Search",
+            "sections": [
+              {
+                "title": "Model Document dengan pgvector HNSW",
+                "description": "Model Document memiliki kolom Embedding 1536-dimensi dengan index HNSW cosine untuk pencarian semantik:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "app/Models/models.go",
+                  "code": "package Models\n\nimport (\n\t\"time\"\n\t\"gorm.io/gorm\"\n)\n\n// Document adalah model GORM untuk pencarian semantik.\n// Kolom Embedding adalah pgvector 1536-dimensi dengan HNSW cosine index.\ntype Document struct {\n\tID         uint           `gorm:\"primaryKey\" json:\"id\"`\n\tTitle      string         `gorm:\"size:500;not null\" json:\"title\"`\n\tContent    string         `gorm:\"type:text\" json:\"content\"`\n\tUserID     *uint          `gorm:\"index\" json:\"user_id,omitempty\"`\n\tSourceType string         `gorm:\"size:100\" json:\"source_type,omitempty\"`\n\tSourceID   string         `gorm:\"size:255\" json:\"source_id,omitempty\"`\n\tMetadata   []byte         `gorm:\"type:jsonb\" json:\"metadata,omitempty\"`\n\t// pgvector HNSW index — production-ready cosine similarity\n\tEmbedding  Vector         `gorm:\"type:vector(1536);index:idx_documents_embedding,type:hnsw,opclass:vector_cosine_ops\" json:\"-\"`\n\tCreatedAt  time.Time      `json:\"created_at\"`\n\tUpdatedAt  time.Time      `json:\"updated_at\"`\n\tDeletedAt  gorm.DeletedAt `gorm:\"index\" json:\"deleted_at,omitempty\"`\n}\n\nfunc (Document) TableName() string { return \"documents\" }"
+                }
+              },
+              {
+                "title": "Vector Type — pgvector Wire Format",
+                "description": "Tipe Vector mengimplementasi driver.Valuer dan sql.Scanner untuk kompatibilitas penuh dengan pgvector:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "app/Models/vector.go",
+                  "code": "package Models\n\n// Vector adalah slice float32 yang kompatibel dengan pgvector.\n// Serialisasi ke format wire pgvector: \"[x,y,z,...]\"\ntype Vector []float32\n\n// Value serialisasi ke format pgvector\nfunc (v Vector) Value() (driver.Value, error) {\n\tif len(v) == 0 {\n\t\treturn nil, nil\n\t}\n\tvar sb strings.Builder\n\tsb.WriteByte('[')\n\tfor i, f := range v {\n\t\tif i > 0 {\n\t\t\tsb.WriteByte(',')\n\t\t}\n\t\tsb.WriteString(strconv.FormatFloat(float64(f), 'f', -1, 32))\n\t}\n\tsb.WriteByte(']')\n\treturn sb.String(), nil\n}\n\n// Penggunaan dalam query semantic search (contoh SQL)\n// SELECT id, title, embedding <=> $1::vector AS distance\n// FROM documents\n// ORDER BY distance\n// LIMIT 10"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "Generic Repository & pgvector Semantic Search",
+            "subtitle": "app/Models/vector.go + app/Models/models.go — AI-Ready Search",
+            "sections": [
+              {
+                "title": "Document Model with pgvector HNSW",
+                "description": "The Document model has a 1536-dimension Embedding column with HNSW cosine index for semantic search:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "app/Models/models.go",
+                  "code": "package Models\n\nimport (\n\t\"time\"\n\t\"gorm.io/gorm\"\n)\n\n// Document is the GORM model for semantic search.\n// The Embedding column is a pgvector 1536-dimension HNSW cosine index.\ntype Document struct {\n\tID         uint           `gorm:\"primaryKey\" json:\"id\"`\n\tTitle      string         `gorm:\"size:500;not null\" json:\"title\"`\n\tContent    string         `gorm:\"type:text\" json:\"content\"`\n\tUserID     *uint          `gorm:\"index\" json:\"user_id,omitempty\"`\n\tSourceType string         `gorm:\"size:100\" json:\"source_type,omitempty\"`\n\tSourceID   string         `gorm:\"size:255\" json:\"source_id,omitempty\"`\n\tMetadata   []byte         `gorm:\"type:jsonb\" json:\"metadata,omitempty\"`\n\t// pgvector HNSW index — production-ready cosine similarity\n\tEmbedding  Vector         `gorm:\"type:vector(1536);index:idx_documents_embedding,type:hnsw,opclass:vector_cosine_ops\" json:\"-\"`\n\tCreatedAt  time.Time      `json:\"created_at\"`\n\tUpdatedAt  time.Time      `json:\"updated_at\"`\n\tDeletedAt  gorm.DeletedAt `gorm:\"index\" json:\"deleted_at,omitempty\"`\n}\n\nfunc (Document) TableName() string { return \"documents\" }"
+                }
+              },
+              {
+                "title": "Vector Type — pgvector Wire Format",
+                "description": "The Vector type implements driver.Valuer and sql.Scanner for full pgvector compatibility:",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "app/Models/vector.go",
+                  "code": "package Models\n\n// Vector is a float32 slice compatible with pgvector.\n// Serializes to pgvector wire format: \"[x,y,z,...]\"\ntype Vector []float32\n\n// Value serializes to pgvector wire format\nfunc (v Vector) Value() (driver.Value, error) {\n\tif len(v) == 0 {\n\t\treturn nil, nil\n\t}\n\tvar sb strings.Builder\n\tsb.WriteByte('[')\n\tfor i, f := range v {\n\t\tif i > 0 {\n\t\t\tsb.WriteByte(',')\n\t\t}\n\t\tsb.WriteString(strconv.FormatFloat(float64(f), 'f', -1, 32))\n\t}\n\tsb.WriteByte(']')\n\treturn sb.String(), nil\n}\n\n// Usage in semantic search query (example SQL)\n// SELECT id, title, embedding <=> $1::vector AS distance\n// FROM documents\n// ORDER BY distance\n// LIMIT 10"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "rancago-cli",
+    "title": {
+      "id": "🛠️ Rancago CLI",
+      "en": "🛠️ Rancago CLI"
+    },
+    "icon": "Terminal",
+    "items": [
+      {
+        "id": "cli-commands",
+        "category": "rancago-cli",
+        "badge": "CLI Tool",
+        "title": {
+          "id": "Perintah CLI Lengkap",
+          "en": "Full CLI Command Reference"
+        },
+        "summary": {
+          "id": "Semua perintah rancago-cli: make:feature, scaffold, make:entity, make:port, make:usecase, make:adapter, make:model, make:migration, tinker, key:generate, storage:link, route:list, migrate.",
+          "en": "All rancago-cli commands: make:feature, scaffold, make:entity, make:port, make:usecase, make:adapter, make:model, make:migration, tinker, key:generate, storage:link, route:list, migrate."
+        },
+        "content": {
+          "id": {
+            "heading": "Referensi Lengkap Rancago CLI",
+            "subtitle": "rancago-cli — Standalone Tool, Zero Dependencies",
+            "sections": [
+              {
+                "title": "Instalasi rancago-cli",
+                "description": "rancago-cli adalah tool standalone tanpa dependensi eksternal, tersedia via go install:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Via go install\ngo install github.com/rancago/rancago-cli@latest\n\n# Via curl (Linux/macOS)\ncurl -fsSL https://raw.githubusercontent.com/rancago/rancago-install/main/install.sh | bash\n\n# Via PowerShell (Windows)\nirm https://raw.githubusercontent.com/rancago/rancago-install/main/install.ps1 | iex\n\n# Verifikasi instalasi\nrancago --version"
+                }
+              },
+              {
+                "title": "make:feature — Scaffolding Fitur Penuh + Docs",
+                "description": "Perintah utama yang paling sering digunakan: scaffold semua lapisan hexagonal sekaligus dan generate FEATURE.md untuk AI-assisted coding:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Mode interaktif (dengan prompt)\nrancago make:feature Order\n\n# Output:\n#  🏗️  Feature name (e.g. Order, Invoice, Product): Order\n#  📝 One-line description: Manage customer orders\n#  → Create domain entity? [Y/n] Y\n#  → Create driven repository port? [Y/n] Y\n#  → Create driving use case port + interactor? [Y/n] Y\n#  → Create HTTP driving adapter (handler)? [Y/n] Y\n#  → Create gRPC driving adapter stub? [y/N] N\n#\n#  🚀 Scaffolding feature \"Order\" (hexagonal)\n#  ============================================================\n#  ✅ Created internal/domain/entities/Order.go\n#  ✅ Created internal/ports/driven/OrderRepository.go\n#  ✅ Created internal/ports/driving/OrderUseCase.go\n#  ✅ Created internal/application/usecases/order_usecase.go\n#  ✅ Created internal/adapters/driving/orderhandler/orderhandler_adapter.go\n#  📄 Created Feature Docs: docs/features/order.md\n#\n#  ✅ Feature \"Order\" scaffolded!\n#  📌 Wire adapters in internal/bootstrap/app.go to go live."
+                }
+              },
+              {
+                "title": "scaffold — Scaffolding Interaktif Komponen",
+                "description": "Seperti make:feature tapi fokus pada komponen tunggal tanpa FEATURE.md (cocok untuk retrofit):",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Mode interaktif\nrancago scaffold Payment\n\n# Mode non-interaktif (flags)\nrancago scaffold Invoice --no-interactive --entity --repo --usecase --http\n\n# Output:\n#  🚀 Scaffolding bounded context \"Payment\" (hexagonal)\n#  ============================================================\n#  ✅ Created internal/domain/entities/Payment.go\n#  ✅ Created internal/ports/driven/PaymentRepository.go\n#  ✅ Created internal/ports/driving/PaymentUseCase.go\n#  ✅ Created internal/application/usecases/payment_usecase.go\n#  ✅ Created internal/adapters/driving/paymenthandler/paymenthandler_adapter.go\n#  ✅ Scaffold \"Payment\" done!\n#  📄 AI context: docs/features/payment.md"
+                }
+              },
+              {
+                "title": "Perintah Generator Individual",
+                "description": "Generator per-lapisan untuk kontrol granular:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Entity domain\nrancago make:entity Product\n# → internal/domain/entities/Product.go\n\n# Port driven (repository interface)\nrancago make:port ProductRepository\n# → internal/ports/driven/product_repository_port.go\n\n# Port driving (use case interface)\nrancago make:port ProductUseCase --driving\n# → internal/ports/driving/product_use_case_port.go\n\n# Use case interactor\nrancago make:usecase Product\n# → internal/application/usecases/product_usecase.go\n\n# Adapter driven (DB/Cache/Storage implementasi)\nrancago make:adapter ProductGorm --direction driven\n# → internal/adapters/driven/productgorm/productgorm_adapter.go\n\n# Adapter driving (HTTP handler)\nrancago make:adapter ProductHandler --direction driving\n# → internal/adapters/driving/producthandler/producthandler_adapter.go\n\n# GORM model\nrancago make:model Product\n# → app/Models/Product.go\n\n# GORM model + migration sekaligus\nrancago make:model Product --migration\n# → app/Models/Product.go + database/migrations/20260101120000_create_products_table.go\n\n# Migration saja\nrancago make:migration add_price_to_products\n# → database/migrations/20260101120000_add_price_to_products.go"
+                }
+              },
+              {
+                "title": "Perintah Utilitas",
+                "description": "Perintah-perintah utilitas untuk development dan operasional:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# REPL untuk eksplorasi container dan arsitektur\nrancago tinker\n# rancago> ls      — list semua container bindings\n# rancago> ports   — list semua driving & driven ports\n# rancago> info    — info framework\n# rancago> quit\n\n# Generate APP_KEY\nrancago key:generate\n# → APP_KEY=base64:...\n\n# Buat symbolic link public/storage -> storage/app/public\nrancago storage:link\n\n# List semua HTTP & gRPC routes\nrancago route:list\n# METHOD   PATH                                     MIDDLEWARE\n# GET      /                                        web\n# GET      /api/v1/health                           api\n# POST     /api/v1/notifications/send               NotificationUseCase.Send\n# GET      /ws                                      HubAdapter (WS)\n# gRPC     /gawego.NotificationService/*            GRPCAdapter (stub)\n\n# Jalankan migrasi\nrancago migrate"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "Full Rancago CLI Reference",
+            "subtitle": "rancago-cli — Standalone Tool, Zero Dependencies",
+            "sections": [
+              {
+                "title": "Installing rancago-cli",
+                "description": "rancago-cli is a standalone tool with zero external dependencies, available via go install:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Via go install\ngo install github.com/rancago/rancago-cli@latest\n\n# Via curl (Linux/macOS)\ncurl -fsSL https://raw.githubusercontent.com/rancago/rancago-install/main/install.sh | bash\n\n# Via PowerShell (Windows)\nirm https://raw.githubusercontent.com/rancago/rancago-install/main/install.ps1 | iex\n\n# Verify installation\nrancago --version"
+                }
+              },
+              {
+                "title": "make:feature — Full Feature Scaffolding + Docs",
+                "description": "The main command you'll use most: scaffolds all hexagonal layers at once and generates FEATURE.md for AI-assisted coding:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Interactive mode (with prompts)\nrancago make:feature Order\n\n# Output:\n#  🏗️  Feature name (e.g. Order, Invoice, Product): Order\n#  📝 One-line description: Manage customer orders\n#  → Create domain entity? [Y/n] Y\n#  → Create driven repository port? [Y/n] Y\n#  → Create driving use case port + interactor? [Y/n] Y\n#  → Create HTTP driving adapter (handler)? [Y/n] Y\n#  → Create gRPC driving adapter stub? [y/N] N\n#\n#  🚀 Scaffolding feature \"Order\" (hexagonal)\n#  ============================================================\n#  ✅ Created internal/domain/entities/Order.go\n#  ✅ Created internal/ports/driven/OrderRepository.go\n#  ✅ Created internal/ports/driving/OrderUseCase.go\n#  ✅ Created internal/application/usecases/order_usecase.go\n#  ✅ Created internal/adapters/driving/orderhandler/orderhandler_adapter.go\n#  📄 Created Feature Docs: docs/features/order.md\n#\n#  ✅ Feature \"Order\" scaffolded!\n#  📌 Wire adapters in internal/bootstrap/app.go to go live."
+                }
+              },
+              {
+                "title": "scaffold — Interactive Component Scaffolding",
+                "description": "Like make:feature but focused on a single component without FEATURE.md (good for retrofitting):",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Interactive mode\nrancago scaffold Payment\n\n# Non-interactive mode (flags)\nrancago scaffold Invoice --no-interactive --entity --repo --usecase --http\n\n# Output:\n#  🚀 Scaffolding bounded context \"Payment\" (hexagonal)\n#  ============================================================\n#  ✅ Created internal/domain/entities/Payment.go\n#  ✅ Created internal/ports/driven/PaymentRepository.go\n#  ✅ Created internal/ports/driving/PaymentUseCase.go\n#  ✅ Created internal/application/usecases/payment_usecase.go\n#  ✅ Created internal/adapters/driving/paymenthandler/paymenthandler_adapter.go\n#  ✅ Scaffold \"Payment\" done!\n#  📄 AI context: docs/features/payment.md"
+                }
+              },
+              {
+                "title": "Individual Generator Commands",
+                "description": "Per-layer generators for granular control:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Domain entity\nrancago make:entity Product\n# → internal/domain/entities/Product.go\n\n# Driven port (repository interface)\nrancago make:port ProductRepository\n# → internal/ports/driven/product_repository_port.go\n\n# Driving port (use case interface)\nrancago make:port ProductUseCase --driving\n# → internal/ports/driving/product_use_case_port.go\n\n# Use case interactor\nrancago make:usecase Product\n# → internal/application/usecases/product_usecase.go\n\n# Driven adapter (DB/Cache/Storage implementation)\nrancago make:adapter ProductGorm --direction driven\n# → internal/adapters/driven/productgorm/productgorm_adapter.go\n\n# Driving adapter (HTTP handler)\nrancago make:adapter ProductHandler --direction driving\n# → internal/adapters/driving/producthandler/producthandler_adapter.go\n\n# GORM model\nrancago make:model Product\n# → app/Models/Product.go\n\n# GORM model + migration together\nrancago make:model Product --migration\n# → app/Models/Product.go + database/migrations/20260101120000_create_products_table.go\n\n# Migration only\nrancago make:migration add_price_to_products\n# → database/migrations/20260101120000_add_price_to_products.go"
+                }
+              },
+              {
+                "title": "Utility Commands",
+                "description": "Utility commands for development and operations:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# REPL to explore container and architecture\nrancago tinker\n# rancago> ls      — list all container bindings\n# rancago> ports   — list all driving & driven ports\n# rancago> info    — framework info\n# rancago> quit\n\n# Generate APP_KEY\nrancago key:generate\n# → APP_KEY=base64:...\n\n# Create symbolic link public/storage -> storage/app/public\nrancago storage:link\n\n# List all HTTP & gRPC routes\nrancago route:list\n# METHOD   PATH                                     MIDDLEWARE\n# GET      /                                        web\n# GET      /api/v1/health                           api\n# POST     /api/v1/notifications/send               NotificationUseCase.Send\n# GET      /ws                                      HubAdapter (WS)\n# gRPC     /gawego.NotificationService/*            GRPCAdapter (stub)\n\n# Run migrations\nrancago migrate"
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
+        "id": "feature-docs",
+        "category": "rancago-cli",
+        "badge": "AI Context",
+        "title": {
+          "id": "Sistem Feature Docs (docs/features/)",
+          "en": "Feature Docs System (docs/features/)"
+        },
+        "summary": {
+          "id": "Setiap make:feature dan scaffold secara otomatis menghasilkan FEATURE.md yang berisi konteks arsitektur untuk AI-assisted coding.",
+          "en": "Every make:feature and scaffold automatically generates a FEATURE.md containing architectural context for AI-assisted coding."
+        },
+        "content": {
+          "id": {
+            "heading": "Sistem Dokumentasi Feature Otomatis",
+            "subtitle": "docs/features/ — Konteks AI yang Dibuat Otomatis oleh CLI",
+            "sections": [
+              {
+                "title": "Apa itu Feature Docs?",
+                "description": "Setiap kali Anda menjalankan make:feature atau scaffold, Rancago CLI secara otomatis menghasilkan file Markdown di docs/features/ yang berisi:",
+                "bullets": [
+                  "📋 Instruksi arsitektur hexagonal untuk AI (tidak perlu jelaskan aturan setiap kali).",
+                  "📁 Tabel file yang di-generate beserta layer dan perannya.",
+                  "🏗️ Diagram alur layer: HTTP → Adapter → Port → UseCase → Domain.",
+                  "🔌 Kode wiring bootstrap siap pakai untuk internal/bootstrap/app.go.",
+                  "⚡ Tabel quick tasks: tambah field, tambah method, tambah route, tambah migration.",
+                  "🚨 Referensi domain errors dengan derrors.New() yang siap digunakan."
+                ],
+                "callout": {
+                  "type": "sunda",
+                  "title": "ᮛᮔ᮪ᮎᮌ᮰ — Ngobrol Heureuy jeung AI",
+                  "message": "Cukup sertakan docs/features/order.md di konteks AI dan tulis: \"Tambah method CancelOrder\". AI akan langsung tahu file mana yang harus diubah, aturan hexagonal yang berlaku, dan bagaimana menulis domain error yang benar — tanpa penjelasan berulang."
+                }
+              },
+              {
+                "title": "Contoh Isi FEATURE.md",
+                "description": "File docs/features/order.md yang dihasilkan otomatis oleh rancago make:feature Order:",
+                "codeSnippet": {
+                  "language": "markdown",
+                  "filename": "docs/features/order.md",
+                  "code": "<!-- CONTEXT_START\nmodule: github.com/rancago/framework\nfeature: Order\ngenerated: 2026-01-15\narch: hexagonal (ports-and-adapters)\nCONTEXT_END -->\n\n# Feature: Order\n\n> Manage customer orders\n\n## 📋 Instructions\n\n<!-- INSTRUCTION\n1. Domain entities MUST NOT import ports or adapters.\n2. Ports are Go interfaces only — no implementations.\n3. Use cases depend on driven ports (injected via constructor).\n4. Adapters depend on driving ports — never on use case structs.\n5. Wire new bindings in internal/bootstrap/app.go (Container.Singleton).\n6. Use derrors.New(op, sentinel, msg) for domain errors.\n7. IDs use valueobjects.ID — call valueobjects.NewIDStr() or NewIDUint().\nINSTRUCTION -->\n\n## 📁 Generated Files\n\n| Layer | File | Role |\n|-------|------|------|\n| Domain Entity | `internal/domain/entities/Order.go` | Core business object |\n| Driven Port | `internal/ports/driven/OrderRepository.go` | Persistence contract |\n| Driving Port | `internal/ports/driving/OrderUseCase.go` | Inbound contract |\n| Use Case | `internal/application/usecases/order_usecase.go` | Business logic |\n| HTTP Adapter | `internal/adapters/driving/orderhandler/orderhandler_adapter.go` | HTTP entry point |\n\n## 🏗️ Layer Flow\n\n```\nHTTP/gRPC/CLI\n  └─ Driving Adapter (internal/adapters/driving/)\n       └─ Driving Port  (internal/ports/driving/OrderUseCase)\n            └─ Use Case     (internal/application/usecases/order_usecase.go)\n                 └─ Driven Port  (internal/ports/driven/OrderRepository)\n                      └─ Domain      (internal/domain/entities/Order.go)\n```\n\n## 🚨 Domain Errors\n\n```go\nreturn derrors.New(\"order.create\", derrors.ErrValidation, \"amount is required\")\nreturn derrors.New(\"order.cancel\", derrors.ErrConflict, \"order already shipped\")\n```"
+                }
+              },
+              {
+                "title": "Cara Menggunakan Feature Docs dengan AI",
+                "description": "Sertakan file feature docs sebagai konteks ke AI dan langsung berikan instruksi:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "AI Prompt Technique",
+                  "code": "# Referensi file + instruksi singkat (contoh prompt)\n# -------------------------------------------------------\ndocs/features/order.md\nTambah method CancelOrder(ctx, orderID, reason string) ke use case.\nBuat juga route POST /api/v1/orders/:id/cancel di HTTP adapter.\n\n# AI akan otomatis:\n# 1. Tambah CancelOrder ke internal/ports/driving/OrderUseCase.go\n# 2. Implementasi di internal/application/usecases/order_usecase.go\n# 3. Tambah route di orderhandler_adapter.go RegisterRoutes()\n# 4. Gunakan derrors.New(\"order.cancel\", ...) untuk error domain\n# — tanpa perlu jelaskan aturan hexagonal berulang kali"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "Automatic Feature Documentation System",
+            "subtitle": "docs/features/ — AI Context Auto-Generated by CLI",
+            "sections": [
+              {
+                "title": "What are Feature Docs?",
+                "description": "Every time you run make:feature or scaffold, Rancago CLI automatically generates a Markdown file in docs/features/ containing:",
+                "bullets": [
+                  "📋 Hexagonal architecture instructions for AI (no need to re-explain rules every time).",
+                  "📁 Table of generated files with their layer and role.",
+                  "🏗️ Layer flow diagram: HTTP → Adapter → Port → UseCase → Domain.",
+                  "🔌 Ready-to-use bootstrap wiring code for internal/bootstrap/app.go.",
+                  "⚡ Quick tasks table: add field, add method, add route, add migration.",
+                  "🚨 Domain error reference with ready-to-use derrors.New() patterns."
+                ],
+                "callout": {
+                  "type": "sunda",
+                  "title": "ᮛᮔ᮪ᮎᮌ᮰ — Vibe Coding with AI",
+                  "message": "Just include docs/features/order.md in your AI context and write: \"Add a CancelOrder method\". The AI instantly knows which files to touch, which hexagonal rules apply, and how to write correct domain errors — no repeated explanations."
+                }
+              },
+              {
+                "title": "Example FEATURE.md Content",
+                "description": "The docs/features/order.md file auto-generated by rancago make:feature Order:",
+                "codeSnippet": {
+                  "language": "markdown",
+                  "filename": "docs/features/order.md",
+                  "code": "<!-- CONTEXT_START\nmodule: github.com/rancago/framework\nfeature: Order\ngenerated: 2026-01-15\narch: hexagonal (ports-and-adapters)\nCONTEXT_END -->\n\n# Feature: Order\n\n> Manage customer orders\n\n## 📋 Instructions\n\n<!-- INSTRUCTION\n1. Domain entities MUST NOT import ports or adapters.\n2. Ports are Go interfaces only — no implementations.\n3. Use cases depend on driven ports (injected via constructor).\n4. Adapters depend on driving ports — never on use case structs.\n5. Wire new bindings in internal/bootstrap/app.go (Container.Singleton).\n6. Use derrors.New(op, sentinel, msg) for domain errors.\n7. IDs use valueobjects.ID — call valueobjects.NewIDStr() or NewIDUint().\nINSTRUCTION -->\n\n## 📁 Generated Files\n\n| Layer | File | Role |\n|-------|------|------|\n| Domain Entity | `internal/domain/entities/Order.go` | Core business object |\n| Driven Port | `internal/ports/driven/OrderRepository.go` | Persistence contract |\n| Driving Port | `internal/ports/driving/OrderUseCase.go` | Inbound contract |\n| Use Case | `internal/application/usecases/order_usecase.go` | Business logic |\n| HTTP Adapter | `internal/adapters/driving/orderhandler/orderhandler_adapter.go` | HTTP entry point |\n\n## 🏗️ Layer Flow\n\n```\nHTTP/gRPC/CLI\n  └─ Driving Adapter (internal/adapters/driving/)\n       └─ Driving Port  (internal/ports/driving/OrderUseCase)\n            └─ Use Case     (internal/application/usecases/order_usecase.go)\n                 └─ Driven Port  (internal/ports/driven/OrderRepository)\n                      └─ Domain      (internal/domain/entities/Order.go)\n```\n\n## 🚨 Domain Errors\n\n```go\nreturn derrors.New(\"order.create\", derrors.ErrValidation, \"amount is required\")\nreturn derrors.New(\"order.cancel\", derrors.ErrConflict, \"order already shipped\")\n```"
+                }
+              },
+              {
+                "title": "Using Feature Docs with AI",
+                "description": "Include the feature doc file as AI context and give direct instructions:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "AI Prompt Technique",
+                  "code": "# Reference file + short instruction (example prompt)\n# -------------------------------------------------------\ndocs/features/order.md\nAdd a CancelOrder(ctx, orderID, reason string) method to the use case.\nAlso add route POST /api/v1/orders/:id/cancel in the HTTP adapter.\n\n# AI will automatically:\n# 1. Add CancelOrder to internal/ports/driving/OrderUseCase.go\n# 2. Implement in internal/application/usecases/order_usecase.go\n# 3. Add route in orderhandler_adapter.go RegisterRoutes()\n# 4. Use derrors.New(\"order.cancel\", ...) for domain errors\n# — without needing to re-explain hexagonal rules each time"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  },
+  {
+    "id": "rancago-install",
+    "title": {
+      "id": "📥 Instalasi Rancago",
+      "en": "📥 Rancago Installation"
+    },
+    "icon": "Download",
+    "items": [
+      {
+        "id": "installation-script",
+        "category": "rancago-install",
+        "badge": "Install",
+        "title": {
+          "id": "Skrip Instalasi rancago-install",
+          "en": "rancago-install Script"
+        },
+        "summary": {
+          "id": "Instal Rancago Framework dan CLI via curl (install.sh), PowerShell (install.ps1), atau go install.",
+          "en": "Install Rancago Framework and CLI via curl (install.sh), PowerShell (install.ps1), or go install."
+        },
+        "content": {
+          "id": {
+            "heading": "Instalasi Rancago Framework",
+            "subtitle": "rancago-install — Tiga Cara Instalasi",
+            "sections": [
+              {
+                "title": "Persyaratan Sistem",
+                "description": "Rancago Framework membutuhkan lingkungan berikut:",
+                "bullets": [
+                  "Go 1.21 atau lebih baru (https://go.dev/dl/)",
+                  "PostgreSQL 15+ dengan ekstensi pgvector (untuk fitur semantic search)",
+                  "Redis 7+ (untuk caching, WebSocket PubSub, dan RBAC)",
+                  "Git (untuk rancago-cli scaffold dengan git init)"
+                ]
+              },
+              {
+                "title": "Cara 1: go install (Direkomendasikan)",
+                "description": "Cara paling mudah untuk menginstal rancago-cli dan framework sekaligus:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Install rancago-cli\ngo install github.com/rancago/rancago-cli@latest\n\n# Tambahkan framework sebagai dependensi proyek\ngo get github.com/rancago/framework@latest\n\n# Verifikasi\nrancago --version\n# rancago-cli v1.0.0 (ᮛᮔ᮪ᮎᮌ᮰)"
+                }
+              },
+              {
+                "title": "Cara 2: curl / install.sh (Linux & macOS)",
+                "description": "Skrip shell otomatis yang mendeteksi OS dan arsitektur, mengunduh binary yang tepat:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Download dan jalankan installer\ncurl -fsSL https://raw.githubusercontent.com/rancago/rancago-install/main/install.sh | bash\n\n# Atau unduh dulu dan periksa sebelum dijalankan (lebih aman)\ncurl -fsSL https://raw.githubusercontent.com/rancago/rancago-install/main/install.sh -o install.sh\nless install.sh  # periksa isi skrip\nbash install.sh\n\n# Tambahkan ke PATH jika belum\nexport PATH=\"$HOME/.rancago/bin:$PATH\"\necho 'export PATH=\"$HOME/.rancago/bin:$PATH\"' >> ~/.bashrc"
+                }
+              },
+              {
+                "title": "Cara 3: PowerShell (Windows)",
+                "description": "Installer PowerShell untuk Windows yang mengunduh dan menginstal binary rancago-cli:",
+                "codeSnippet": {
+                  "language": "powershell",
+                  "filename": "PowerShell",
+                  "code": "# Jalankan langsung\nirm https://raw.githubusercontent.com/rancago/rancago-install/main/install.ps1 | iex\n\n# Atau unduh dan periksa dulu\nInvoke-WebRequest -Uri https://raw.githubusercontent.com/rancago/rancago-install/main/install.ps1 -OutFile install.ps1\nnotepad install.ps1  # periksa isi skrip\n.\\install.ps1\n\n# Verifikasi\nrancago --version"
+                }
+              },
+              {
+                "title": "Mulai Proyek Baru",
+                "description": "Setelah instalasi, langkah-langkah untuk memulai proyek Rancago baru:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Clone template atau inisialisasi modul baru\nmkdir my-app && cd my-app\ngo mod init github.com/username/my-app\ngo get github.com/rancago/framework@latest\n\n# Generate APP_KEY\nrancago key:generate\n# → APP_KEY=base64:... (salin ke .env)\n\n# Buat fitur pertama\nrancago make:feature User\nrancago make:feature Product\n\n# Wire di bootstrap, jalankan server\ngo run main.go\n# [rancago] HTTP server listening on :8080\n# [rancago] gRPC server listening on :50051",
+                  "callout": {
+                    "type": "tip",
+                    "title": "💡 Tips",
+                    "message": "Gunakan rancago tinker untuk menjelajahi container bindings dan daftar port yang tersedia sebelum mulai mengimplementasi fitur baru."
+                  }
+                }
+              },
+              {
+                "title": "Diagram Alur Instalasi",
+                "description": "Tiga jalur instalasi dan alur setup proyek:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Install-Flow.mmd",
+                  "code": "flowchart TD\n  Start([Mulai Instalasi])\n  Start --> GoInstall[\"go install\\ngithub.com/rancago/rancago-cli@latest\"]\n  Start --> Curl[\"curl -fsSL install.sh | bash\\n(Linux/macOS)\"]\n  Start --> Pwsh[\"irm install.ps1 | iex\\n(Windows PowerShell)\"]\n\n  GoInstall --> Verify[rancago --version]\n  Curl --> Verify\n  Pwsh --> Verify\n\n  Verify --> NewProject[mkdir my-app && go mod init]\n  NewProject --> GetFramework[\"go get github.com/rancago/framework@latest\"]\n  GetFramework --> KeyGen[rancago key:generate]\n  KeyGen --> MakeFeature[rancago make:feature MyFeature]\n  MakeFeature --> Wire[Wire di bootstrap/app.go]\n  Wire --> Run[go run main.go]\n  Run --> Done([\"✅ HTTP :8080 + gRPC :50051 berjalan!\"])"
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "Rancago Framework Installation",
+            "subtitle": "rancago-install — Three Ways to Install",
+            "sections": [
+              {
+                "title": "System Requirements",
+                "description": "Rancago Framework requires the following environment:",
+                "bullets": [
+                  "Go 1.21 or newer (https://go.dev/dl/)",
+                  "PostgreSQL 15+ with pgvector extension (for semantic search features)",
+                  "Redis 7+ (for caching, WebSocket PubSub, and RBAC)",
+                  "Git (for rancago-cli scaffold with git init)"
+                ]
+              },
+              {
+                "title": "Method 1: go install (Recommended)",
+                "description": "The easiest way to install both rancago-cli and the framework:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Install rancago-cli\ngo install github.com/rancago/rancago-cli@latest\n\n# Add framework as a project dependency\ngo get github.com/rancago/framework@latest\n\n# Verify\nrancago --version\n# rancago-cli v1.0.0 (ᮛᮔ᮪ᮎᮌ᮰)"
+                }
+              },
+              {
+                "title": "Method 2: curl / install.sh (Linux & macOS)",
+                "description": "Shell script that auto-detects OS and architecture, downloads the correct binary:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Download and run installer\ncurl -fsSL https://raw.githubusercontent.com/rancago/rancago-install/main/install.sh | bash\n\n# Or download first and inspect before running (safer)\ncurl -fsSL https://raw.githubusercontent.com/rancago/rancago-install/main/install.sh -o install.sh\nless install.sh  # inspect the script\nbash install.sh\n\n# Add to PATH if not already\nexport PATH=\"$HOME/.rancago/bin:$PATH\"\necho 'export PATH=\"$HOME/.rancago/bin:$PATH\"' >> ~/.bashrc"
+                }
+              },
+              {
+                "title": "Method 3: PowerShell (Windows)",
+                "description": "PowerShell installer for Windows that downloads and installs the rancago-cli binary:",
+                "codeSnippet": {
+                  "language": "powershell",
+                  "filename": "PowerShell",
+                  "code": "# Run directly\nirm https://raw.githubusercontent.com/rancago/rancago-install/main/install.ps1 | iex\n\n# Or download and inspect first\nInvoke-WebRequest -Uri https://raw.githubusercontent.com/rancago/rancago-install/main/install.ps1 -OutFile install.ps1\nnotepad install.ps1  # inspect the script\n.\\install.ps1\n\n# Verify\nrancago --version"
+                }
+              },
+              {
+                "title": "Starting a New Project",
+                "description": "After installation, steps to start a new Rancago project:",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Terminal",
+                  "code": "# Initialize a new module\nmkdir my-app && cd my-app\ngo mod init github.com/username/my-app\ngo get github.com/rancago/framework@latest\n\n# Generate APP_KEY\nrancago key:generate\n# → APP_KEY=base64:... (copy to .env)\n\n# Create your first features\nrancago make:feature User\nrancago make:feature Product\n\n# Wire in bootstrap, run the server\ngo run main.go\n# [rancago] HTTP server listening on :8080\n# [rancago] gRPC server listening on :50051"
+                }
+              },
+              {
+                "title": "Installation Flow Diagram",
+                "description": "Three installation paths and project setup flow:",
+                "codeSnippet": {
+                  "language": "mermaid",
+                  "filename": "Install-Flow.mmd",
+                  "code": "flowchart TD\n  Start([Start Installation])\n  Start --> GoInstall[\"go install\\ngithub.com/rancago/rancago-cli@latest\"]\n  Start --> Curl[\"curl -fsSL install.sh | bash\\n(Linux/macOS)\"]\n  Start --> Pwsh[\"irm install.ps1 | iex\\n(Windows PowerShell)\"]\n\n  GoInstall --> Verify[rancago --version]\n  Curl --> Verify\n  Pwsh --> Verify\n\n  Verify --> NewProject[mkdir my-app && go mod init]\n  NewProject --> GetFramework[\"go get github.com/rancago/framework@latest\"]\n  GetFramework --> KeyGen[rancago key:generate]\n  KeyGen --> MakeFeature[rancago make:feature MyFeature]\n  MakeFeature --> Wire[Wire in bootstrap/app.go]\n  Wire --> Run[go run main.go]\n  Run --> Done([\"✅ HTTP :8080 + gRPC :50051 running!\"])"
+                }
+              }
+            ]
+          }
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,62 @@
+{
+  "brand": {
+    "name": "RANCAGO",
+    "sundaneseScript": "ᮛᮔ᮪ᮎᮌ᮰",
+    "version": "v1.0.0",
+    "tagline": {
+      "id": "Enterprise Hexagonal Architecture Go Framework",
+      "en": "Enterprise Hexagonal Architecture Go Framework"
+    },
+    "slogan": {
+      "id": "Ports & Adapters · IoC Container · Multi-Storage · OAuth RBAC · Notifications",
+      "en": "Ports & Adapters · IoC Container · Multi-Storage · OAuth RBAC · Notifications"
+    }
+  },
+  "navItems": [
+    {
+      "id": "home",
+      "label": {
+        "id": "Beranda",
+        "en": "Home"
+      },
+      "icon": "Home"
+    },
+    {
+      "id": "docs",
+      "label": {
+        "id": "Dokumentasi",
+        "en": "Docs"
+      },
+      "icon": "BookOpen"
+    },
+    {
+      "id": "cli",
+      "label": {
+        "id": "Terminal CLI",
+        "en": "CLI Playground"
+      },
+      "icon": "Terminal"
+    },
+    {
+      "id": "repos",
+      "label": {
+        "id": "Repositori",
+        "en": "Repos"
+      },
+      "icon": "FolderGit2"
+    }
+  ],
+  "quickLinks": {
+    "github": "https://github.com/rancago/framework",
+    "cliRepo": "https://github.com/rancago/rancago-cli",
+    "installRepo": "https://github.com/rancago/rancago-install",
+    "discussions": "https://github.com/rancago/framework/discussions"
+  },
+  "footer": {
+    "copyright": "© 2026 Rancago Open Source Ecosystem. Distributed under MIT License.",
+    "philosophy": {
+      "id": "Diberdayakan oleh Filosofi Sunda Nusantara: Silih Asah, Silih Asih, Silih Asuh.",
+      "en": "Powered by Sundanese Wisdom: Silih Asah, Silih Asih, Silih Asuh."
+    }
+  }
+}
