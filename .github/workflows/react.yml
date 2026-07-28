@@ -21,25 +21,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
       - name: Setup Bun
         uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
 
       - name: Install Dependencies
-        run: bun install --frozen-lockfile
+        run: |
+          if [ -f bun.lockb ]; then bun install --frozen-lockfile; else bun install; fi
 
       - name: Build Project
+        env:
+          GITHUB_PAGES: "true"
         run: bun run build
-        # Catatan: Sesuaikan script build di package.json Anda (biasanya "vite build" atau "react-scripts build")
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ./dist 
-          # Ubah path di atas sesuai folder hasil build framework React Anda:
-          # - Vite: ./dist
-          # - Create React App: ./build
 
   deploy:
     environment:
