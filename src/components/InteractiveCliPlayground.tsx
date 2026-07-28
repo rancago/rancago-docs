@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   Terminal,
   Play,
@@ -15,6 +15,39 @@ interface InteractiveCliPlaygroundProps {
   lang: Language;
 }
 
+type CliPreset = {
+  id: string;
+  label: string;
+  cmd: string;
+  logs: (ctx: { version: string; buildDate?: string | null; lang: Language }) => string[];
+};
+
+function parseRancagoCliRunnerGo(src: string): {
+  version?: string;
+  buildDate?: string;
+  commands: string[];
+} {
+  const versionMatch = src.match(/\bVersion\s*=\s*"([^"]+)"/);
+  const buildDateMatch = src.match(/\bBuildDate\s*=\s*"([^"]+)"/);
+
+  const lines = src.split('\n');
+  const caseLines = lines.filter((l) => l.trim().startsWith('case '));
+  const cmdSet = new Set<string>();
+
+  for (const line of caseLines) {
+    const matches = Array.from(line.matchAll(/"([^"]+)"/g));
+    for (const m of matches) {
+      if (m[1]) cmdSet.add(m[1]);
+    }
+  }
+
+  return {
+    version: versionMatch?.[1],
+    buildDate: buildDateMatch?.[1],
+    commands: Array.from(cmdSet),
+  };
+}
+
 export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> = ({
   lang,
 }) => {
@@ -24,13 +57,17 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
   const [activeCodeFile, setActiveCodeFile] = useState<string>('bootstrap.go');
   const [copiedCode, setCopiedCode] = useState(false);
 
-  const cliPresets = [
+  const [cliVersion, setCliVersion] = useState<string>('1.0.0');
+  const [cliBuildDate, setCliBuildDate] = useState<string | null>(null);
+  const [cliRunnerSource, setCliRunnerSource] = useState<string | null>(null);
+
+  const staticCliPresets: CliPreset[] = useMemo(() => ([
     {
       id: 'make-feature',
       label: 'rancago make:feature Order',
       cmd: 'rancago make:feature Order',
-      logs: [
-        '⚡ Rancago CLI v1.0.0 (ᮛᮔ᮪ᮎᮌ᮰)',
+      logs: ({ version }) => [
+        `⚡ Rancago CLI v${version} (ᮛᮔ᮪ᮎᮌ᮰)`,
         '------------------------------------------------',
         '  🏗️  Feature name: Order',
         '  📝 Description: Manage customer orders',
@@ -57,8 +94,8 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
       id: 'scaffold',
       label: 'rancago scaffold Payment',
       cmd: 'rancago scaffold Payment',
-      logs: [
-        '⚡ Rancago CLI v1.0.0 (ᮛᮔ᮪ᮎᮌ᮰)',
+      logs: ({ version }) => [
+        `⚡ Rancago CLI v${version} (ᮛᮔ᮪ᮎᮌ᮰)`,
         '------------------------------------------------',
         '  🏗️  Component name: Payment',
         '  → Create domain entity? [Y/n] Y',
@@ -83,7 +120,9 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
       id: 'tinker',
       label: 'rancago tinker',
       cmd: 'rancago tinker',
-      logs: [
+      logs: ({ version }) => [
+        `⚡ Rancago CLI v${version} (ᮛᮔ᮪ᮎᮌ᮰)`,
+        '------------------------------------------------',
         '  🔮 Rancago Tinker REPL (minimal)',
         '  Commands: help, ports, ls, info, quit',
         '',
@@ -128,9 +167,62 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
         '  Goodbye! ᮛᮔ᮪ᮎᮌ᮰',
       ],
     },
-  ];
+  ]), []);
 
-  const codeFiles: Record<string, { filename: string; path: string; code: string }> = {
+  const [cliPresets, setCliPresets] = useState<CliPreset[]>(staticCliPresets);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetch(
+          'https://raw.githubusercontent.com/rancago/rancago-cli/main/commands/runner.go',
+        );
+        if (!res.ok) return;
+        const text = await res.text();
+        if (!cancelled) setCliRunnerSource(text);
+        const parsed = parseRancagoCliRunnerGo(text);
+        if (cancelled) return;
+
+        if (parsed.version) setCliVersion(parsed.version);
+        if (parsed.buildDate) setCliBuildDate(parsed.buildDate);
+
+        const baseCmds = new Set(staticCliPresets.map((p) => p.cmd));
+        const newPresets: CliPreset[] = parsed.commands
+          .map((cmd) => `rancago ${cmd}`)
+          .filter((cmd) => !baseCmds.has(cmd))
+          .map((cmd) => {
+            const raw = cmd.replace(/^rancago\s+/, '');
+            return {
+              id: `auto-${raw.replace(/[^a-zA-Z0-9:_-]+/g, '-')}`,
+              label: cmd,
+              cmd,
+              logs: ({ version, lang }) => [
+                `⚡ Rancago CLI v${version} (ᮛᮔ᮪ᮎᮌ᮰)`,
+                '------------------------------------------------',
+                `$ ${cmd}`,
+                '',
+                lang === 'id'
+                  ? 'Simulasi: command ini diambil dari rancago-cli (GitHub).'
+                  : 'Simulation: this command is loaded from rancago-cli (GitHub).',
+                lang === 'id'
+                  ? 'Jalankan rancago-cli di terminal untuk output asli.'
+                  : 'Run rancago-cli in your terminal for real output.',
+              ],
+            };
+          });
+
+        setCliPresets([...staticCliPresets, ...newPresets]);
+      } catch {
+        return;
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [staticCliPresets]);
+
+  const codeFiles: Record<string, { filename: string; path: string; code: string }> = useMemo(() => ({
     'bootstrap.go': {
       filename: 'app.go',
       path: 'bootstrap/app.go',
@@ -306,7 +398,16 @@ func (uc *OrderInteractor) CancelOrder(
 	return order.Cancel()
 }`,
     },
-  };
+    'cli-runner.go': {
+      filename: 'runner.go',
+      path: 'rancago-cli/commands/runner.go',
+      code:
+        cliRunnerSource ??
+        (lang === 'id'
+          ? 'Memuat runner.go dari rancago-cli...\n\nJika tidak muncul:\n- Pastikan koneksi internet tersedia\n- Cek apakah URL raw GitHub dapat diakses'
+          : 'Loading runner.go from rancago-cli...\n\nIf it does not load:\n- Ensure internet connectivity\n- Check if the raw GitHub URL is accessible'),
+    },
+  }), [cliRunnerSource, lang]);
 
   const runPreset = (presetId: string) => {
     const preset = cliPresets.find((p) => p.id === presetId);
@@ -317,7 +418,7 @@ func (uc *OrderInteractor) CancelOrder(
     setTerminalOutput(['$ ' + preset.cmd, 'Executing...']);
 
     setTimeout(() => {
-      setTerminalOutput(preset.logs);
+      setTerminalOutput(preset.logs({ version: cliVersion, buildDate: cliBuildDate, lang }));
       setIsRunning(false);
     }, 600);
   };
@@ -379,7 +480,7 @@ func (uc *OrderInteractor) CancelOrder(
                   <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
                 </div>
                 <span className="text-[#A8988B] font-semibold ml-2 truncate">
-                  bash — rancago-cli v1.0.0 (ᮛᮔ᮪ᮎᮌ᮰)
+                  bash — rancago-cli v{cliVersion}{cliBuildDate ? ` (${cliBuildDate})` : ''} (ᮛᮔ᮪ᮎᮌ᮰)
                 </span>
               </div>
               <button
