@@ -48,7 +48,7 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
   const terminalBanner = useMemo(
     () => [
       ...bannerLines,
-      `rancago v${cliVersion} — Framework Toolkit (ᮛᮔ᮪ᮎᮌ᮰)`,
+      `rancago v${cliVersion} - Framework Toolkit (ᮛᮔ᮪ᮎᮌ᮰)`,
       '',
     ],
     [bannerLines, cliVersion],
@@ -185,7 +185,7 @@ import (
 )
 
 func (a *Application) RegisterCore() {
-	// Redis — Singleton CachePort
+	// Redis - Singleton CachePort
 	a.Container.Singleton("redis", func(c *Container.Container) (interface{}, error) {
 		mgr := Cache.NewRedisManager(&Cache.RedisConfig{
 			Host: a.Config.Redis.Host,
@@ -195,7 +195,7 @@ func (a *Application) RegisterCore() {
 		return mgr, nil
 	})
 
-	// WebSocket Hub — depends on Redis
+	// WebSocket Hub - depends on Redis
 	a.Container.Singleton("ws.hub", func(c *Container.Container) (interface{}, error) {
 		redisRaw, _ := c.Resolve("redis")
 		hub := WebSocket.NewHub(redisRaw.(*Cache.RedisManager))
@@ -242,7 +242,7 @@ import (
 	"github.com/rancago/framework/internal/domain/valueobjects"
 )
 
-// Order is a pure domain entity — zero external dependencies.
+// Order is a pure domain entity - zero external dependencies.
 type Order struct {
 	ID        valueobjects.ID
 	UserID    valueobjects.ID
@@ -280,7 +280,7 @@ func NewOrder(userID valueobjects.ID) *Order {
 
 func (o *Order) Cancel() error {
 	if o.Status == OrderStatusShipped {
-		// Domain error — imported from domain/errors, never from adapters
+		// Domain error - imported from domain/errors, never from adapters
 		return nil // replace with derrors.New("order.cancel", derrors.ErrConflict, ...)
 	}
 	o.Status = OrderStatusCancelled
@@ -303,11 +303,11 @@ import (
 )
 
 type OrderInteractor struct {
-	// Depends on interface (driven port) — never on concrete adapter struct
+	// Depends on interface (driven port) - never on concrete adapter struct
 	orders driven.OrderRepository
 }
 
-// Constructor injection — swap any driven adapter without changing this file
+// Constructor injection - swap any driven adapter without changing this file
 func NewOrderInteractor(orders driven.OrderRepository) driving.OrderUseCase {
 	return &OrderInteractor{orders: orders}
 }
@@ -375,13 +375,13 @@ func (uc *OrderInteractor) CancelOrder(
           </div>
           <h2 className="text-2xl sm:text-3xl font-extrabold text-[#2C2118] dark:text-[#F7F2EC] mt-1">
             {lang === 'id'
-              ? 'Simulasi Rancago CLI & Kode Hexagonal Architecture'
-              : 'Interactive Rancago CLI & Hexagonal Architecture Code Explorer'}
+              ? 'Simulasi Rancago & Kode Hexagonal Architecture'
+              : 'Interactive Rancago & Hexagonal Architecture Code Explorer'}
           </h2>
           <p className="text-sm text-[#6E5748] dark:text-[#A8988B] mt-2">
             {lang === 'id'
-              ? 'Jalankan simulasi perintah CLI dan jelajahi kode arsitektur hexagonal yang dihasilkan.'
-              : 'Run simulated CLI commands and explore the generated hexagonal architecture code.'}
+              ? 'Jalankan simulasi perintah rancago dan jelajahi kode arsitektur hexagonal yang dihasilkan.'
+              : 'Run simulated rancago commands and explore the generated hexagonal architecture code.'}
           </p>
         </div>
 
@@ -416,7 +416,7 @@ func (uc *OrderInteractor) CancelOrder(
                   <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
                 </div>
                 <span className="text-[#A8988B] font-semibold ml-2 truncate">
-                  bash — rancago v{cliVersion} (ᮛᮔ᮪ᮎᮌ᮰)
+                  bash - rancago v{cliVersion} (ᮛᮔ᮪ᮎᮌ᮰)
                 </span>
               </div>
               <button
