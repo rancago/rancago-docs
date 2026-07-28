@@ -30,7 +30,7 @@
       "icon": "BookOpen"
     },
     {
-      "id": "cli",
+      "id": "playground",
       "label": {
         "id": "Terminal CLI",
         "en": "CLI Playground"
