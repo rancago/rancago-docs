@@ -97,6 +97,141 @@
         }
       },
       {
+        "id": "install-and-first-project",
+        "category": "getting-started",
+        "badge": "Setup",
+        "title": {
+          "id": "Install → Proyek Pertama",
+          "en": "Install → First Project"
+        },
+        "summary": {
+          "id": "Langkah praktis dari instalasi rancago CLI sampai membuat dan menjalankan proyek pertama.",
+          "en": "Practical steps from installing the rancago CLI to creating and running your first project."
+        },
+        "content": {
+          "id": {
+            "heading": "Install sampai Proyek Pertama",
+            "subtitle": "Installer → Verifikasi → Init Go module → Scaffold → Run",
+            "sections": [
+              {
+                "title": "1) Install rancago (CLI)",
+                "description": "Rancago menggunakan CLI bernama `rancago` untuk scaffolding dan utilitas. Cara instalasi paling simpel adalah menggunakan repo rancago-install.",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Install (Linux/macOS/Windows)",
+                  "code": "# Linux / macOS\\ncurl -fsSL https://raw.githubusercontent.com/rancago/rancago-install/main/install.sh | bash\\n\\n# Windows (PowerShell)\\niwr -useb https://raw.githubusercontent.com/rancago/rancago-install/main/install.ps1 | iex\\n\\n# Alternatif (Go)\\ngo install github.com/rancago/rancago-cli@latest"
+                }
+              },
+              {
+                "title": "2) Verifikasi instalasi",
+                "description": "Pastikan perintah `rancago` bisa dipanggil dari terminal dan versi terbaca.",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Verify",
+                  "code": "rancago version\\nrancago help"
+                }
+              },
+              {
+                "title": "3) Buat proyek Go baru",
+                "description": "CLI bekerja di dalam folder proyek Anda. Buat folder proyek, inisialisasi Go module, lalu tambahkan dependency framework.",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Project Init",
+                  "code": "mkdir my-app && cd my-app\\ngo mod init github.com/you/my-app\\ngo get github.com/rancago/framework@latest"
+                }
+              },
+              {
+                "title": "4) Buat entrypoint `main.go`",
+                "description": "Minimal entrypoint untuk menjalankan HTTP + gRPC secara bersamaan.",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "main.go",
+                  "code": "package main\\n\\nimport (\\n\\t\\\"context\\\"\\n\\t\\\"log\\\"\\n\\t\\\"os/signal\\\"\\n\\t\\\"syscall\\\"\\n\\n\\t\\\"github.com/rancago/framework/bootstrap\\\"\\n)\\n\\nfunc main() {\\n\\tapp := bootstrap.New()\\n\\tapp.RegisterCore()\\n\\tapp.Boot()\\n\\n\\tctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)\\n\\tdefer stop()\\n\\n\\terrCh := make(chan error, 2)\\n\\tgo func() { errCh <- app.StartHTTP(ctx) }()\\n\\tgo func() { errCh <- app.StartGRPC(ctx) }()\\n\\n\\tif err := <-errCh; err != nil {\\n\\t\\tlog.Fatalf(\\\"[rancago] fatal: %v\\\", err)\\n\\t}\\n}"
+                }
+              },
+              {
+                "title": "5) Scaffold fitur pertama",
+                "description": "Mulai dari bounded context (scaffold) atau langsung dari feature generator. Hasilnya akan ditempatkan ke struktur `internal/` sesuai Hexagonal Architecture.",
+                "bullets": [
+                  "Gunakan `rancago scaffold <Name>` untuk scaffolding interaktif satu bounded context lengkap.",
+                  "Gunakan `rancago make:feature <Name>` untuk membuat feature + docs/features/<name>.md."
+                ],
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Scaffold",
+                  "code": "rancago scaffold Order\\n# atau\\nrancago make:feature Order"
+                },
+                "callout": {
+                  "type": "info",
+                  "title": "Menjalankan server",
+                  "message": "Untuk menjalankan server, gunakan `go run .` di root proyek. Perintah `rancago serve` berguna sebagai utilitas dev, namun proses server tetap berasal dari kode proyek Anda."
+                }
+              }
+            ]
+          },
+          "en": {
+            "heading": "From Install to Your First Project",
+            "subtitle": "Installer → Verify → Init Go module → Scaffold → Run",
+            "sections": [
+              {
+                "title": "1) Install rancago (CLI)",
+                "description": "Rancago uses a CLI called `rancago` for scaffolding and utilities. The simplest install path is via the rancago-install repository.",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Install (Linux/macOS/Windows)",
+                  "code": "# Linux / macOS\\ncurl -fsSL https://raw.githubusercontent.com/rancago/rancago-install/main/install.sh | bash\\n\\n# Windows (PowerShell)\\niwr -useb https://raw.githubusercontent.com/rancago/rancago-install/main/install.ps1 | iex\\n\\n# Alternative (Go)\\ngo install github.com/rancago/rancago-cli@latest"
+                }
+              },
+              {
+                "title": "2) Verify",
+                "description": "Ensure `rancago` is available in your PATH and the version prints correctly.",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Verify",
+                  "code": "rancago version\\nrancago help"
+                }
+              },
+              {
+                "title": "3) Create a new Go project",
+                "description": "The CLI runs inside your project directory. Create a folder, initialize your Go module, then add the framework dependency.",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Project Init",
+                  "code": "mkdir my-app && cd my-app\\ngo mod init github.com/you/my-app\\ngo get github.com/rancago/framework@latest"
+                }
+              },
+              {
+                "title": "4) Create the `main.go` entrypoint",
+                "description": "A minimal entrypoint to run HTTP + gRPC concurrently.",
+                "codeSnippet": {
+                  "language": "go",
+                  "filename": "main.go",
+                  "code": "package main\\n\\nimport (\\n\\t\\\"context\\\"\\n\\t\\\"log\\\"\\n\\t\\\"os/signal\\\"\\n\\t\\\"syscall\\\"\\n\\n\\t\\\"github.com/rancago/framework/bootstrap\\\"\\n)\\n\\nfunc main() {\\n\\tapp := bootstrap.New()\\n\\tapp.RegisterCore()\\n\\tapp.Boot()\\n\\n\\tctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)\\n\\tdefer stop()\\n\\n\\terrCh := make(chan error, 2)\\n\\tgo func() { errCh <- app.StartHTTP(ctx) }()\\n\\tgo func() { errCh <- app.StartGRPC(ctx) }()\\n\\n\\tif err := <-errCh; err != nil {\\n\\t\\tlog.Fatalf(\\\"[rancago] fatal: %v\\\", err)\\n\\t}\\n}"
+                }
+              },
+              {
+                "title": "5) Scaffold your first feature",
+                "description": "Start with a bounded context (interactive scaffold) or a feature generator. Output is placed under `internal/` following Hexagonal Architecture.",
+                "bullets": [
+                  "Use `rancago scaffold <Name>` for an interactive full bounded-context scaffold.",
+                  "Use `rancago make:feature <Name>` to generate a feature + docs/features/<name>.md."
+                ],
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Scaffold",
+                  "code": "rancago scaffold Order\\n# or\\nrancago make:feature Order"
+                },
+                "callout": {
+                  "type": "info",
+                  "title": "Running the server",
+                  "message": "To run the server, use `go run .` in your project root. The `rancago serve` command can help as a dev utility, but the server process still comes from your project's code."
+                }
+              }
+            ]
+          }
+        }
+      },
+      {
         "id": "architecture",
         "category": "getting-started",
         "badge": "Architecture",

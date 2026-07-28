@@ -83,7 +83,7 @@ src/data/
 ## 📂 Directory Structure
 
 ```
-rancago-docs-portal/
+rancago-docs/
 ├── public/                  # Static assets and favicon
 ├── src/
 │   ├── components/          # Modular React components
@@ -113,35 +113,35 @@ rancago-docs-portal/
 
 ### Prerequisites
 - **Node.js**: v18.0.0 or higher
-- **npm** / **pnpm** / **yarn**
+- **bun**
 
 ### Quick Start
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/rancago/rancago.git
-   cd rancago
+   git clone https://github.com/rancago/rancago-docs.git
+   cd rancago-docs
    ```
 
 2. **Install dependencies**:
    ```bash
-   npm install
+   bun install
    ```
 
 3. **Start the development server**:
    ```bash
-   npm run dev
+   bun run dev
    ```
    Open your browser at `http://localhost:3000`.
 
 4. **Verify TypeScript & Linting**:
    ```bash
-   npm run lint
+   bun run lint
    ```
 
 5. **Build for production**:
    ```bash
-   npm run build
+   bun run build
    ```
 
 ---

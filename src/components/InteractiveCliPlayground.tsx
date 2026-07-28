@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   Terminal,
   Play,
@@ -22,32 +22,6 @@ type CliPreset = {
   logs: (ctx: { version: string; buildDate?: string | null; lang: Language }) => string[];
 };
 
-function parseRancagoCliRunnerGo(src: string): {
-  version?: string;
-  buildDate?: string;
-  commands: string[];
-} {
-  const versionMatch = src.match(/\bVersion\s*=\s*"([^"]+)"/);
-  const buildDateMatch = src.match(/\bBuildDate\s*=\s*"([^"]+)"/);
-
-  const lines = src.split('\n');
-  const caseLines = lines.filter((l) => l.trim().startsWith('case '));
-  const cmdSet = new Set<string>();
-
-  for (const line of caseLines) {
-    const matches = Array.from(line.matchAll(/"([^"]+)"/g));
-    for (const m of matches) {
-      if (m[1]) cmdSet.add(m[1]);
-    }
-  }
-
-  return {
-    version: versionMatch?.[1],
-    buildDate: buildDateMatch?.[1],
-    commands: Array.from(cmdSet),
-  };
-}
-
 export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> = ({
   lang,
 }) => {
@@ -57,9 +31,28 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
   const [activeCodeFile, setActiveCodeFile] = useState<string>('bootstrap.go');
   const [copiedCode, setCopiedCode] = useState(false);
 
-  const [cliVersion, setCliVersion] = useState<string>('1.0.0');
-  const [cliBuildDate, setCliBuildDate] = useState<string | null>(null);
-  const [cliRunnerSource, setCliRunnerSource] = useState<string | null>(null);
+  const cliVersion = '1.0.0';
+
+  const bannerLines = useMemo(
+    () => [
+      '  ____                                        ',
+      ' |  _ \\\\ __ _ _ __   ___ __ _  __ _  ___      ',
+      ' | |_) / _` | \\'_ \\\\ / __/ _` |/ _` |/ _ \\\\     ',
+      ' |  _ < (_| | | | | (_| (_| | (_| | (_) |    ',
+      ' |_| \\\\_\\\\__,_|_| |_|\\\\___\\\\__,_|\\\\__, |\\\\___/     ',
+      '                               |___/          ',
+    ],
+    [],
+  );
+
+  const terminalBanner = useMemo(
+    () => [
+      ...bannerLines,
+      `rancago v${cliVersion} — Framework Toolkit (ᮛᮔ᮪ᮎᮌ᮰)`,
+      '',
+    ],
+    [bannerLines, cliVersion],
+  );
 
   const staticCliPresets: CliPreset[] = useMemo(() => ([
     {
@@ -67,7 +60,8 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
       label: 'rancago make:feature Order',
       cmd: 'rancago make:feature Order',
       logs: ({ version }) => [
-        `⚡ Rancago CLI v${version} (ᮛᮔ᮪ᮎᮌ᮰)`,
+        ...terminalBanner,
+        `⚡ rancago v${version}`,
         '------------------------------------------------',
         '  🏗️  Feature name: Order',
         '  📝 Description: Manage customer orders',
@@ -95,7 +89,8 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
       label: 'rancago scaffold Payment',
       cmd: 'rancago scaffold Payment',
       logs: ({ version }) => [
-        `⚡ Rancago CLI v${version} (ᮛᮔ᮪ᮎᮌ᮰)`,
+        ...terminalBanner,
+        `⚡ rancago v${version}`,
         '------------------------------------------------',
         '  🏗️  Component name: Payment',
         '  → Create domain entity? [Y/n] Y',
@@ -121,7 +116,8 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
       label: 'rancago tinker',
       cmd: 'rancago tinker',
       logs: ({ version }) => [
-        `⚡ Rancago CLI v${version} (ᮛᮔ᮪ᮎᮌ᮰)`,
+        ...terminalBanner,
+        `⚡ rancago v${version}`,
         '------------------------------------------------',
         '  🔮 Rancago Tinker REPL (minimal)',
         '  Commands: help, ports, ls, info, quit',
@@ -167,60 +163,9 @@ export const InteractiveCliPlayground: React.FC<InteractiveCliPlaygroundProps> =
         '  Goodbye! ᮛᮔ᮪ᮎᮌ᮰',
       ],
     },
-  ]), []);
+  ]), [terminalBanner]);
 
-  const [cliPresets, setCliPresets] = useState<CliPreset[]>(staticCliPresets);
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch(
-          'https://raw.githubusercontent.com/rancago/rancago-cli/main/commands/runner.go',
-        );
-        if (!res.ok) return;
-        const text = await res.text();
-        if (!cancelled) setCliRunnerSource(text);
-        const parsed = parseRancagoCliRunnerGo(text);
-        if (cancelled) return;
-
-        if (parsed.version) setCliVersion(parsed.version);
-        if (parsed.buildDate) setCliBuildDate(parsed.buildDate);
-
-        const baseCmds = new Set(staticCliPresets.map((p) => p.cmd));
-        const newPresets: CliPreset[] = parsed.commands
-          .map((cmd) => `rancago ${cmd}`)
-          .filter((cmd) => !baseCmds.has(cmd))
-          .map((cmd) => {
-            const raw = cmd.replace(/^rancago\s+/, '');
-            return {
-              id: `auto-${raw.replace(/[^a-zA-Z0-9:_-]+/g, '-')}`,
-              label: cmd,
-              cmd,
-              logs: ({ version, lang }) => [
-                `⚡ Rancago CLI v${version} (ᮛᮔ᮪ᮎᮌ᮰)`,
-                '------------------------------------------------',
-                `$ ${cmd}`,
-                '',
-                lang === 'id'
-                  ? 'Simulasi: command ini diambil dari rancago-cli (GitHub).'
-                  : 'Simulation: this command is loaded from rancago-cli (GitHub).',
-                lang === 'id'
-                  ? 'Jalankan rancago-cli di terminal untuk output asli.'
-                  : 'Run rancago-cli in your terminal for real output.',
-              ],
-            };
-          });
-
-        setCliPresets([...staticCliPresets, ...newPresets]);
-      } catch {
-        return;
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [staticCliPresets]);
+  const cliPresets = staticCliPresets;
 
   const codeFiles: Record<string, { filename: string; path: string; code: string }> = useMemo(() => ({
     'bootstrap.go': {
@@ -398,16 +343,7 @@ func (uc *OrderInteractor) CancelOrder(
 	return order.Cancel()
 }`,
     },
-    'cli-runner.go': {
-      filename: 'runner.go',
-      path: 'rancago-cli/commands/runner.go',
-      code:
-        cliRunnerSource ??
-        (lang === 'id'
-          ? 'Memuat runner.go dari rancago-cli...\n\nJika tidak muncul:\n- Pastikan koneksi internet tersedia\n- Cek apakah URL raw GitHub dapat diakses'
-          : 'Loading runner.go from rancago-cli...\n\nIf it does not load:\n- Ensure internet connectivity\n- Check if the raw GitHub URL is accessible'),
-    },
-  }), [cliRunnerSource, lang]);
+  }), []);
 
   const runPreset = (presetId: string) => {
     const preset = cliPresets.find((p) => p.id === presetId);
@@ -418,7 +354,7 @@ func (uc *OrderInteractor) CancelOrder(
     setTerminalOutput(['$ ' + preset.cmd, 'Executing...']);
 
     setTimeout(() => {
-      setTerminalOutput(preset.logs({ version: cliVersion, buildDate: cliBuildDate, lang }));
+      setTerminalOutput(preset.logs({ version: cliVersion, buildDate: null, lang }));
       setIsRunning(false);
     }, 600);
   };
@@ -444,8 +380,8 @@ func (uc *OrderInteractor) CancelOrder(
           </h2>
           <p className="text-sm text-[#6E5748] dark:text-[#A8988B] mt-2">
             {lang === 'id'
-              ? 'Jalankan simulasi perintah rancago-cli dan jelajahi kode arsitektur hexagonal yang dihasilkan.'
-              : 'Run simulated rancago-cli commands and explore the generated hexagonal architecture code.'}
+              ? 'Jalankan simulasi perintah CLI dan jelajahi kode arsitektur hexagonal yang dihasilkan.'
+              : 'Run simulated CLI commands and explore the generated hexagonal architecture code.'}
           </p>
         </div>
 
@@ -480,7 +416,7 @@ func (uc *OrderInteractor) CancelOrder(
                   <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block" />
                 </div>
                 <span className="text-[#A8988B] font-semibold ml-2 truncate">
-                  bash — rancago-cli v{cliVersion}{cliBuildDate ? ` (${cliBuildDate})` : ''} (ᮛᮔ᮪ᮎᮌ᮰)
+                  bash — rancago v{cliVersion} (ᮛᮔ᮪ᮎᮌ᮰)
                 </span>
               </div>
               <button
@@ -495,10 +431,13 @@ func (uc *OrderInteractor) CancelOrder(
             {/* Terminal Output Stream */}
             <div className="p-4 text-xs space-y-1.5 overflow-y-auto overflow-x-auto flex-1 leading-relaxed bg-[#17110D] text-[#E58A3C] min-w-0">
               {terminalOutput.length === 0 ? (
-                <div className="text-[#8A766A] italic">
-                  {lang === 'id'
-                    ? 'Pilih perintah CLI di atas untuk melihat simulasi output...'
-                    : 'Select a CLI command above to see simulated output...'}
+                <div className="space-y-2">
+                  <pre className="text-[#F7F2EC] whitespace-pre overflow-x-auto">{bannerLines.join('\n')}</pre>
+                  <div className="text-[#8A766A]">
+                    {lang === 'id'
+                      ? 'Pilih perintah di atas untuk melihat simulasi output.'
+                      : 'Select a command above to see simulated output.'}
+                  </div>
                 </div>
               ) : (
                 terminalOutput.map((line, idx) => (
