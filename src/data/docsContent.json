@@ -166,6 +166,20 @@
                   "title": "Menjalankan server",
                   "message": "Untuk menjalankan server, gunakan `go run .` di root proyek. Perintah `rancago serve` berguna sebagai utilitas dev, namun proses server tetap berasal dari kode proyek Anda."
                 }
+              },
+              {
+                "title": "6) Menjalankan unit test",
+                "description": "Unit test membantu memastikan perubahan pada domain/usecase tetap aman. Rancago memakai `testing` bawaan Go (tanpa framework tambahan) sehingga bisa langsung dijalankan.",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Test",
+                  "code": "# Jalankan seluruh test\\ngo test ./...\\n\\n# Jalankan dengan coverage\\ngo test -cover ./...\\n\\n# Jalankan 1 package + verbose\\ngo test ./internal/domain/valueobjects -v"
+                },
+                "callout": {
+                  "type": "tip",
+                  "title": "Prioritas test yang ideal",
+                  "message": "Mulai dari Value Objects (deterministik), lanjut repository in-memory (CRUD/pagination), lalu naik ke usecase dengan fake/mocks di layer ports."
+                }
               }
             ]
           },
@@ -225,6 +239,20 @@
                   "type": "info",
                   "title": "Running the server",
                   "message": "To run the server, use `go run .` in your project root. The `rancago serve` command can help as a dev utility, but the server process still comes from your project's code."
+                }
+              },
+              {
+                "title": "6) Running unit tests",
+                "description": "Unit tests help keep domain/usecase changes safe. Rancago uses Go's built-in `testing` package (no extra framework) so you can run tests immediately.",
+                "codeSnippet": {
+                  "language": "bash",
+                  "filename": "Test",
+                  "code": "# Run all tests\\ngo test ./...\\n\\n# Run with coverage\\ngo test -cover ./...\\n\\n# Run a single package + verbose\\ngo test ./internal/domain/valueobjects -v"
+                },
+                "callout": {
+                  "type": "tip",
+                  "title": "Recommended test order",
+                  "message": "Start with deterministic Value Objects, then in-memory repositories (CRUD/pagination), and finally usecases using fakes/mocks at the ports layer."
                 }
               }
             ]
