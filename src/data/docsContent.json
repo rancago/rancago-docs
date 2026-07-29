@@ -695,7 +695,7 @@
                 "codeSnippet": {
                   "language": "mermaid",
                   "filename": "Storage-OCP.mmd",
-                  "code": "flowchart LR\n  App[Application Code] --> Mgr[Storage.Manager]\n  Mgr -->|Disk(name)| Factory{Factory Registry}\n  Factory -->|driver=memory| MemDriver[Memory Driver]\n  Factory -->|driver=s3| S3Driver[S3 Driver]\n  Factory -->|driver=minio| MinioDriver[MinIO Driver]\n  Factory -->|driver=gdrive| GDriveDriver[Google Drive Driver]\n\n  Mgr -. RegisterFactory .-> Factory\n  note1[\"OCP: Add driver = RegisterFactory()\\nNo Manager code changes needed\"]"
+                  "code": "flowchart LR\n  App[Application Code] --> Mgr[Storage.Manager]\n  Mgr -->|Disk name| FactoryReg[Factory Registry]\n  FactoryReg -->|driver=memory| MemDriver[Memory Driver]\n  FactoryReg -->|driver=s3| S3Driver[S3 Driver]\n  FactoryReg -->|driver=minio| MinioDriver[MinIO Driver]\n  FactoryReg -->|driver=gdrive| GDriveDriver[Google Drive Driver]\n  Mgr -.->|RegisterFactory| FactoryReg"
                 }
               }
             ]
@@ -719,7 +719,7 @@
                 "codeSnippet": {
                   "language": "mermaid",
                   "filename": "Storage-OCP.mmd",
-                  "code": "flowchart LR\n  App[Application Code] --> Mgr[Storage.Manager]\n  Mgr -->|Disk(name)| Factory{Factory Registry}\n  Factory -->|driver=memory| MemDriver[Memory Driver]\n  Factory -->|driver=s3| S3Driver[S3 Driver]\n  Factory -->|driver=minio| MinioDriver[MinIO Driver]\n  Factory -->|driver=gdrive| GDriveDriver[Google Drive Driver]\n\n  Mgr -. RegisterFactory .-> Factory\n  note1[\"OCP: Add driver = RegisterFactory()\\nNo Manager code changes needed\"]"
+                  "code": "flowchart LR\n  App[Application Code] --> Mgr[Storage.Manager]\n  Mgr -->|Disk name| FactoryReg[Factory Registry]\n  FactoryReg -->|driver=memory| MemDriver[Memory Driver]\n  FactoryReg -->|driver=s3| S3Driver[S3 Driver]\n  FactoryReg -->|driver=minio| MinioDriver[MinIO Driver]\n  FactoryReg -->|driver=gdrive| GDriveDriver[Google Drive Driver]\n  Mgr -.->|RegisterFactory| FactoryReg"
                 }
               }
             ]
